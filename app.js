@@ -306,6 +306,56 @@ function revenueToday() {
   return loadLogs().filter(e => isToday(e.ts)).reduce((s, e) => s + (Number(e.price) || 0), 0);
 }
 
+function getLoyalClientRevenueTodayFromWork() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayMs = today.getTime();
+  
+  let revenue = 0;
+  loyalClients.forEach(client => {
+    client.vehicles.forEach(vehicle => {
+      if (vehicle.works) {
+        vehicle.works.forEach(work => {
+          const workDate = new Date(work.date);
+          if (workDate.getTime() >= todayMs) {
+            revenue += work.total;
+          }
+        });
+      }
+    });
+  });
+  return revenue;
+}
+
+function getLoyalClientPaymentsToday() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayMs = today.getTime();
+  
+  let revenue = 0;
+  let count = 0;
+  loyalClients.forEach(client => {
+    client.vehicles.forEach(vehicle => {
+      if (vehicle.payments) {
+        vehicle.payments.forEach(payment => {
+          const paymentDate = new Date(payment.date);
+          if (paymentDate.getTime() >= todayMs) {
+            revenue += payment.amount;
+            count++;
+          }
+        });
+      }
+    });
+  });
+  return { revenue, count };
+}
+
+function getTotalRevenueToday() {
+  const stockRevenue = revenueToday();
+  const loyalPayments = getLoyalClientPaymentsToday();
+  return stockRevenue + loyalPayments.revenue;
+}
+
 function formatGBP(v) {
   try { return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(v); }
   catch { return '£' + (Math.round(v * 100) / 100).toFixed(2); }
@@ -676,24 +726,49 @@ function saveDailySnapshot() {
     if (!history[yesterdayKey]) {
       // Calculate stats for yesterday
       const logs = JSON.parse(localStorage.getItem(LOG_KEY) || '[]');
+      const loyalClientsData = JSON.parse(localStorage.getItem(LOYAL_CLIENTS_KEY) || '[]');
+      
       let stats = {
         revenue: 0,
         transactions: 0,
         productsSold: 0,
+        loyalClientRevenue: 0,
+        loyalClientTransactions: 0,
       };
       
+      // Stock revenue
       logs.forEach(log => {
-        const logDate = new Date(log.timestamp);
+        const logDate = new Date(log.ts);
         if (getDayKey(logDate) === yesterdayKey) {
-          stats.revenue += log.quantity * log.price;
+          stats.revenue += (log.quantity || 1) * log.price;
           stats.transactions += 1;
-          stats.productsSold += log.quantity;
+          stats.productsSold += (log.quantity || 1);
         }
       });
       
+      // Loyal client revenue (from payments)
+      loyalClientsData.forEach(client => {
+        client.vehicles.forEach(vehicle => {
+          if (vehicle.payments) {
+            vehicle.payments.forEach(payment => {
+              const paymentDate = new Date(payment.date);
+              if (getDayKey(paymentDate) === yesterdayKey) {
+                stats.loyalClientRevenue += payment.amount;
+                stats.loyalClientTransactions += 1;
+              }
+            });
+          }
+        });
+      });
+      
+      const totalRevenue = stats.revenue + stats.loyalClientRevenue;
+      
       history[yesterdayKey] = {
-        revenue: Math.round(stats.revenue * 100) / 100,
+        revenue: Math.round(totalRevenue * 100) / 100,
+        stockRevenue: Math.round(stats.revenue * 100) / 100,
+        loyalClientRevenue: Math.round(stats.loyalClientRevenue * 100) / 100,
         transactions: stats.transactions,
+        loyalClientTransactions: stats.loyalClientTransactions,
         productsSold: stats.productsSold,
       };
       localStorage.setItem(DAILY_HISTORY_KEY, JSON.stringify(history));
@@ -712,41 +787,70 @@ function getCurrentMonthStats() {
     transactions: 0,
     productsSold: 0,
     activeClients: new Set(),
+    loyalClientRevenue: 0,
+    loyalClientTransactions: 0,
+    activeLoyalClients: new Set(),
   };
 
   try {
     const logs = JSON.parse(localStorage.getItem(LOG_KEY) || '[]');
     const clients = JSON.parse(localStorage.getItem(CLIENTS_KEY) || '[]');
+    const loyalClientsData = JSON.parse(localStorage.getItem(LOYAL_CLIENTS_KEY) || '[]');
     
+    // Stock revenue
     logs.forEach(log => {
-      const logDate = new Date(log.timestamp);
+      const logDate = new Date(log.ts);
       if (getMonthKey(logDate) === monthKey) {
-        stats.revenue += log.quantity * log.price;
+        stats.revenue += (log.quantity || 1) * log.price;
         stats.transactions += 1;
-        stats.productsSold += log.quantity;
+        stats.productsSold += (log.quantity || 1);
       }
     });
 
     // Count unique clients with work in this month
     clients.forEach(client => {
-      if (client.work && client.work.length > 0) {
-        const hasCurrentMonth = client.work.some(w => {
-          const workDate = new Date(w.timestamp);
+      if (client.works && client.works.length > 0) {
+        const hasCurrentMonth = client.works.some(w => {
+          const workDate = new Date(w.date);
           return getMonthKey(workDate) === monthKey;
         });
         if (hasCurrentMonth) stats.activeClients.add(client.id);
       }
+    });
+    
+    // Loyal client revenue (from payments)
+    loyalClientsData.forEach(client => {
+      let clientHasActivity = false;
+      client.vehicles.forEach(vehicle => {
+        if (vehicle.payments) {
+          vehicle.payments.forEach(payment => {
+            const paymentDate = new Date(payment.date);
+            if (getMonthKey(paymentDate) === monthKey) {
+              stats.loyalClientRevenue += payment.amount;
+              stats.loyalClientTransactions += 1;
+              clientHasActivity = true;
+            }
+          });
+        }
+      });
+      if (clientHasActivity) stats.activeLoyalClients.add(client.id);
     });
 
   } catch (e) {
     console.error('Error calculating stats:', e);
   }
 
+  const totalRevenue = stats.revenue + stats.loyalClientRevenue;
+
   return {
-    revenue: Math.round(stats.revenue * 100) / 100,
+    revenue: Math.round(totalRevenue * 100) / 100,
+    stockRevenue: Math.round(stats.revenue * 100) / 100,
+    loyalClientRevenue: Math.round(stats.loyalClientRevenue * 100) / 100,
     transactions: stats.transactions,
+    loyalClientTransactions: stats.loyalClientTransactions,
     productsSold: stats.productsSold,
     activeClients: stats.activeClients.size,
+    activeLoyalClients: stats.activeLoyalClients.size,
   };
 }
 
@@ -800,12 +904,20 @@ function renderDailyHistory() {
     const date = new Date(year, month - 1, day);
     const dayName = date.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
     
+    const totalRevenue = data.revenue || 0;
+    const stockRev = data.stockRevenue || totalRevenue;
+    const loyalRev = data.loyalClientRevenue || 0;
+    const totalTransactions = (data.transactions || 0) + (data.loyalClientTransactions || 0);
+    
     return `
       <tr>
         <td><strong>${dayName}</strong></td>
-        <td>£${data.revenue.toFixed(2)}</td>
-        <td>${data.transactions}</td>
-        <td>${data.productsSold}</td>
+        <td>
+          <div>£${totalRevenue.toFixed(2)}</div>
+          ${loyalRev > 0 ? `<small style="color:#666;font-size:11px;">Stock: £${stockRev.toFixed(2)} | Loyal: £${loyalRev.toFixed(2)}</small>` : ''}
+        </td>
+        <td>${totalTransactions}</td>
+        <td>${data.productsSold || 0}</td>
       </tr>
     `;
   }).join('');
@@ -829,13 +941,22 @@ function renderMonthlyHistory() {
     const [year, month] = monthKey.split('-');
     const monthName = new Date(year, month - 1).toLocaleString('en-US', { month: 'long', year: 'numeric' });
     
+    const totalRevenue = data.revenue || 0;
+    const stockRev = data.stockRevenue || totalRevenue;
+    const loyalRev = data.loyalClientRevenue || 0;
+    const totalTransactions = (data.transactions || 0) + (data.loyalClientTransactions || 0);
+    const totalClients = (data.activeClients || 0) + (data.activeLoyalClients || 0);
+    
     return `
       <tr>
         <td><strong>${monthName}</strong></td>
-        <td>£${data.revenue.toFixed(2)}</td>
-        <td>${data.transactions}</td>
-        <td>${data.productsSold}</td>
-        <td>${data.activeClients}</td>
+        <td>
+          <div>£${totalRevenue.toFixed(2)}</div>
+          ${loyalRev > 0 ? `<small style="color:#666;font-size:11px;">Stock: £${stockRev.toFixed(2)} | Loyal: £${loyalRev.toFixed(2)}</small>` : ''}
+        </td>
+        <td>${totalTransactions}</td>
+        <td>${data.productsSold || 0}</td>
+        <td>${totalClients}</td>
       </tr>
     `;
   }).join('');
@@ -849,7 +970,8 @@ function updateHistoryDisplay() {
 function updateHeaderStats() {
   maybeResetSalesAt12h();
   const c12 = countLast12h();
-  const rev = (Math.round(revenueToday() * 100) / 100).toFixed(2);
+  const totalRev = getTotalRevenueToday();
+  const rev = (Math.round(totalRev * 100) / 100).toFixed(2);
   if (count12hEl) count12hEl.textContent = c12;
   if (revenueTodayEl) revenueTodayEl.textContent = rev;
   if (mCount12h) mCount12h.textContent = c12;
@@ -1311,19 +1433,33 @@ function updatePaymentDisplay(client) {
 
 function updateAnalytics() {
   const c12 = countLast12h();
-  const rev = revenueToday();
+  const stockRev = revenueToday();
+  const loyalPayments = getLoyalClientPaymentsToday();
+  const totalRev = stockRev + loyalPayments.revenue;
+  
   const clients = loadClients();
   const activeClients = clients.length;
+  const activeLoyalClients = loyalClients.length;
   
   let totalDebt = 0;
   clients.forEach(c => {
-    const paid = c.payments.reduce((sum, p) => sum + p.amount, 0);
-    totalDebt += Math.max(0, c.totalAmount - paid);
+    const work = c.works?.reduce((sum, w) => sum + w.total, 0) || 0;
+    const paid = c.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
+    totalDebt += Math.max(0, work - paid);
   });
   
-  if (statSold) statSold.textContent = c12;
-  if (statRevenue) statRevenue.textContent = formatGBP(rev);
-  if (statActiveClients) statActiveClients.textContent = activeClients;
+  // Add loyal client outstanding debt
+  loyalClients.forEach(client => {
+    client.vehicles.forEach(vehicle => {
+      const work = (vehicle.works || []).reduce((sum, w) => sum + w.total, 0);
+      const paid = (vehicle.payments || []).reduce((sum, p) => sum + p.amount, 0);
+      totalDebt += Math.max(0, work - paid);
+    });
+  });
+  
+  if (statSold) statSold.textContent = c12 + loyalPayments.count;
+  if (statRevenue) statRevenue.textContent = formatGBP(totalRev);
+  if (statActiveClients) statActiveClients.textContent = activeClients + activeLoyalClients;
   if (statTotalDebt) statTotalDebt.textContent = formatGBP(totalDebt);
   
   // Top Products
@@ -1849,6 +1985,8 @@ function addWorkToVehicle(clientId, vehicleId, desc, parts, labour, partsCost) {
   vehicle.works.push(newWork);
   saveLoyalClients();
   renderVehicleWorkDetails(clientId, vehicleId);
+  updateHeaderStats();
+  renderLoyalClientsList();
 }
 
 function deleteVehicleWork(clientId, vehicleId, workId) {
@@ -1871,6 +2009,8 @@ function deleteVehicleWork(clientId, vehicleId, workId) {
   vehicle.works = vehicle.works.filter(w => w.id !== workId);
   saveLoyalClients();
   renderVehicleWorkDetails(clientId, vehicleId);
+  updateHeaderStats();
+  renderLoyalClientsList();
   showUndoNotification();
 }
 
@@ -1891,6 +2031,8 @@ function addPaymentToVehicle(clientId, vehicleId, amount) {
   vehicle.payments.push(newPayment);
   saveLoyalClients();
   renderVehicleWorkDetails(clientId, vehicleId);
+  updateHeaderStats();
+  renderLoyalClientsList();
 }
 
 function deleteVehicle(clientId, vehicleId) {
