@@ -2566,26 +2566,27 @@ button.secondary:hover {
 }
 
 .loyal-stats .stat-item {
-  background: linear-gradient(135deg, #ff6b35 0%, #d85d3e 100%);
+  background: transparent;
   padding: 24px;
   border-radius: 12px;
   text-align: center;
-  color: white;
-  box-shadow: 0 8px 20px rgba(216, 93, 62, 0.25);
+  border: 3px solid #f0f0f0;
 }
 
 .loyal-stats .stat-value {
-  font-size: 40px;
-  font-weight: 800;
+  font-size: 48px;
+  font-weight: 900;
   margin-bottom: 8px;
+  color: #ff9500;
+  text-shadow: 0 2px 4px rgba(255, 149, 0, 0.2);
 }
 
 .loyal-stats .stat-label {
   font-size: 14px;
-  opacity: 0.95;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
+  color: #1a1a1a;
 }
 
 .add-loyal-client-form {
