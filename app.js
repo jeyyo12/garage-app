@@ -1609,8 +1609,9 @@ if (workForm) {
     const parts = partsList.value.trim();
     const wPrice = workPrice.value.trim();
     const pPrice = partsPrice.value.trim();
-    if (!desc || !wPrice || !pPrice) return;
-    addWork(currentClientId, desc, parts, wPrice, pPrice);
+    // Only require description and labour cost; parts price is optional (defaults to 0)
+    if (!desc || !wPrice) return;
+    addWork(currentClientId, desc, parts, wPrice, pPrice || '0');
     workForm.reset();
     workDesc.focus();
   });
