@@ -1,5 +1,5 @@
 :root {
-  --bg: #f7f2ec;
+  --bg: #fdfaf5;
   --panel: #ffffff;
   --accent: #ff9550;
   --accent-2: #c45f28;
@@ -26,7 +26,7 @@ body {
   margin: 0;
   min-height: 100vh;
   min-height: -webkit-fill-available;
-  background: linear-gradient(135deg, #ffffff 0%, #fffbf8 50%, #fff5f0 100%);
+  background: linear-gradient(135deg, #fefdfb 0%, #fffbf8 40%, #fff9f5 100%);
   background-attachment: fixed;
   color: var(--text);
   font-family: 'Space Grotesk', sans-serif;
@@ -42,8 +42,8 @@ body {
 
 .shell {
   width: min(1280px, 100%);
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.78));
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 24px;
   box-shadow: var(--shadow);
   backdrop-filter: blur(10px);
@@ -55,8 +55,8 @@ body {
 .glow {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 30% 40%, rgba(255, 149, 80, 0.08), transparent 40%),
-    radial-gradient(circle at 70% 60%, rgba(255, 149, 80, 0.05), transparent 35%);
+  background: radial-gradient(circle at 30% 40%, rgba(255, 149, 80, 0.12), transparent 35%),
+    radial-gradient(circle at 70% 60%, rgba(196, 95, 40, 0.08), transparent 30%);
   pointer-events: none;
   mix-blend-mode: screen;
 }
@@ -3956,13 +3956,11 @@ button.secondary:hover {
   }
 
   body {
-    background: radial-gradient(circle at 20% 20%, rgba(255, 149, 80, 0.1), transparent 32%),
-      radial-gradient(circle at 78% 18%, rgba(196, 95, 40, 0.08), transparent 28%),
-      var(--bg);
+    background: linear-gradient(135deg, #1a1412 0%, #251e1a 50%, #2a1f1c 100%);
   }
 
   .shell {
-    background: linear-gradient(145deg, rgba(42, 34, 32, 0.95), rgba(42, 34, 32, 0.85));
+    background: #2a2220;
     border-color: rgba(255, 255, 255, 0.1);
   }
 
