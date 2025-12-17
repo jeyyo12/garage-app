@@ -3946,8 +3946,8 @@ button.secondary:hover {
   }
 }
 
-/* Dark mode support (optional) */
-@media (prefers-color-scheme: dark) {
+/* Dark mode support (optional) - DISABLED FOR LIGHT MODE ONLY */
+/* @media (prefers-color-scheme: dark) {
   :root {
     --bg: #1a1412;
     --panel: #2a2220;
@@ -3980,4 +3980,4 @@ button.secondary:hover {
     color: var(--text);
     border-color: rgba(255, 255, 255, 0.1);
   }
-}
+} */
