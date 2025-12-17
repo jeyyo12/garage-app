@@ -2937,3 +2937,240 @@ button.secondary:hover {
     grid-template-columns: 1fr;
   }
 }
+
+/* ======================================
+   VEHICLE DETAILS MODAL
+====================================== */
+.vehicle-details-content {
+  padding: 20px 0;
+}
+
+.vehicle-work-form {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr 1fr auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.vehicle-work-form input {
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+.vehicle-work-form button {
+  padding: 12px 24px;
+}
+
+.vehicle-payment-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.vehicle-payment-form input {
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+.vehicle-payment-form button {
+  padding: 12px 24px;
+}
+
+.vehicle-works-section,
+.vehicle-payments-section {
+  margin: 32px 0;
+}
+
+.vehicle-works-section h3,
+.vehicle-payments-section h3 {
+  font-size: 18px;
+  margin-bottom: 16px;
+  color: #1a1a1a;
+}
+
+.vehicle-works-list,
+.vehicle-payments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.work-item {
+  background: white;
+  border: 2px solid #f0f0f0;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.3s ease;
+}
+
+.work-item:hover {
+  border-color: #667eea;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+}
+
+.work-info {
+  flex: 1;
+}
+
+.work-desc {
+  font-size: 16px;
+  margin-bottom: 6px;
+  color: #1a1a1a;
+}
+
+.work-parts {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.work-prices {
+  font-size: 13px;
+  color: #999;
+  margin-bottom: 4px;
+}
+
+.work-date {
+  font-size: 12px;
+  color: #999;
+}
+
+.work-total {
+  font-size: 20px;
+  font-weight: 700;
+  color: #667eea;
+  min-width: 80px;
+  text-align: right;
+}
+
+.payment-item {
+  background: white;
+  border: 2px solid #f0f0f0;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  transition: all 0.3s ease;
+}
+
+.payment-item:hover {
+  border-color: #2ecc71;
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.1);
+}
+
+.payment-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.payment-amount {
+  font-size: 20px;
+  font-weight: 700;
+  color: #2ecc71;
+}
+
+.payment-date {
+  font-size: 13px;
+  color: #999;
+}
+
+.btn-delete-small {
+  background: #ff4757;
+  color: white;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.btn-delete-small:hover {
+  background: #ee3344;
+  transform: scale(1.1);
+}
+
+.vehicle-summary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 24px;
+  border-radius: 12px;
+  margin-top: 32px;
+}
+
+.vehicle-summary .summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  font-size: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.vehicle-summary .summary-row:last-child {
+  border-bottom: none;
+}
+
+.vehicle-summary .summary-row.total {
+  font-size: 22px;
+  font-weight: 700;
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.loyal-vehicle-item .vehicle-info-block {
+  flex: 1;
+}
+
+.loyal-vehicle-item .vehicle-balance {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-top: 8px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Responsive for Vehicle Details */
+@media (max-width: 768px) {
+  .vehicle-work-form {
+    grid-template-columns: 1fr;
+  }
+
+  .vehicle-payment-form {
+    grid-template-columns: 1fr;
+  }
+
+  .work-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .work-total {
+    width: 100%;
+    text-align: left;
+  }
+
+  .payment-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}

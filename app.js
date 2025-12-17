@@ -1718,6 +1718,7 @@ window.deleteSale = deleteSale;
 
 let loyalClients = [];
 let currentLoyalClientId = null;
+let currentVehicleId = null;
 
 function loadLoyalClients() {
   try {
@@ -1762,6 +1763,8 @@ function addVehicleToLoyalClient(clientId, car, notes) {
     id: generateVehicleId(),
     car: car.trim(),
     notes: notes.trim() || '',
+    works: [],
+    payments: [],
     addedDate: new Date().toISOString()
   };
 
@@ -1785,6 +1788,86 @@ function deleteVehicle(clientId, vehicleId) {
 
   client.vehicles = client.vehicles.filter(v => v.id !== vehicleId);
   saveLoyalClients();
+  renderLoyalClientDetails(clientId);
+  renderLoyalClientsList();
+}
+
+function addWorkToVehicle(clientId, vehicleId, desc, parts, workPrice, partsPrice) {
+  const client = loyalClients.find(c => c.id === clientId);
+  if (!client) return;
+
+  const vehicle = client.vehicles.find(v => v.id === vehicleId);
+  if (!vehicle) return;
+
+  const wPrice = parseFloat(workPrice) || 0;
+  const pPrice = parseFloat(partsPrice) || 0;
+  const total = wPrice + pPrice;
+
+  const newWork = {
+    id: 'work_' + Date.now(),
+    desc: desc.trim(),
+    parts: parts.trim(),
+    workPrice: wPrice,
+    partsPrice: pPrice,
+    total: total,
+    date: new Date().toISOString()
+  };
+
+  if (!vehicle.works) vehicle.works = [];
+  vehicle.works.push(newWork);
+  saveLoyalClients();
+  renderVehicleDetails(clientId, vehicleId);
+  renderLoyalClientDetails(clientId);
+  renderLoyalClientsList();
+}
+
+function addPaymentToVehicle(clientId, vehicleId, amount) {
+  const client = loyalClients.find(c => c.id === clientId);
+  if (!client) return;
+
+  const vehicle = client.vehicles.find(v => v.id === vehicleId);
+  if (!vehicle) return;
+
+  const newPayment = {
+    id: 'payment_' + Date.now(),
+    amount: parseFloat(amount) || 0,
+    date: new Date().toISOString()
+  };
+
+  if (!vehicle.payments) vehicle.payments = [];
+  vehicle.payments.push(newPayment);
+  saveLoyalClients();
+  renderVehicleDetails(clientId, vehicleId);
+  renderLoyalClientDetails(clientId);
+  renderLoyalClientsList();
+}
+
+function deleteVehicleWork(clientId, vehicleId, workId) {
+  if (!confirm('Delete this work?')) return;
+  const client = loyalClients.find(c => c.id === clientId);
+  if (!client) return;
+
+  const vehicle = client.vehicles.find(v => v.id === vehicleId);
+  if (!vehicle) return;
+
+  vehicle.works = vehicle.works.filter(w => w.id !== workId);
+  saveLoyalClients();
+  renderVehicleDetails(clientId, vehicleId);
+  renderLoyalClientDetails(clientId);
+  renderLoyalClientsList();
+}
+
+function deleteVehiclePayment(clientId, vehicleId, paymentId) {
+  if (!confirm('Delete this payment?')) return;
+  const client = loyalClients.find(c => c.id === clientId);
+  if (!client) return;
+
+  const vehicle = client.vehicles.find(v => v.id === vehicleId);
+  if (!vehicle) return;
+
+  vehicle.payments = vehicle.payments.filter(p => p.id !== paymentId);
+  saveLoyalClients();
+  renderVehicleDetails(clientId, vehicleId);
   renderLoyalClientDetails(clientId);
   renderLoyalClientsList();
 }
@@ -1828,12 +1911,22 @@ function renderLoyalClientsList() {
       : initials;
 
     const vehiclesHtml = client.vehicles.length > 0
-      ? client.vehicles.map(v => `
-          <div class="loyal-vehicle-item">
-            <span class="vehicle-icon">🚐</span>
-            <span class="vehicle-name">${v.car}</span>
-          </div>
-        `).join('')
+      ? client.vehicles.map(v => {
+          const works = v.works || [];
+          const payments = v.payments || [];
+          const totalWork = works.reduce((sum, w) => sum + (w.total || 0), 0);
+          const totalPaid = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+          const balance = totalWork - totalPaid;
+          
+          return `
+            <div class="loyal-vehicle-item">
+              <span class="vehicle-icon">🚐</span>
+              <div class="vehicle-name">${v.car}</div>
+              ${balance > 0 ? `<span class="vehicle-balance" style="color: #ff4757; font-weight: 600;">£${balance.toFixed(2)}</span>` : ''}
+              ${balance === 0 && totalWork > 0 ? `<span class="vehicle-balance" style="color: #2ecc71; font-weight: 600;">✓ Paid</span>` : ''}
+            </div>
+          `;
+        }).join('')
       : '<p style="color:#999;font-size:13px;">No vehicles added yet</p>';
 
     return `
@@ -1903,16 +1996,125 @@ function renderLoyalClientDetails(clientId) {
     return;
   }
 
-  vehiclesList.innerHTML = client.vehicles.map(vehicle => `
-    <div class="loyal-vehicle-item">
-      <div class="vehicle-info-block">
-        <div class="vehicle-name">🚐 ${vehicle.car}</div>
-        ${vehicle.notes ? `<div class="loyal-vehicle-notes">${vehicle.notes}</div>` : ''}
-        <div class="vehicle-date">Added: ${new Date(vehicle.addedDate).toLocaleDateString()}</div>
+  vehiclesList.innerHTML = client.vehicles.map(vehicle => {
+    const works = vehicle.works || [];
+    const payments = vehicle.payments || [];
+    const totalWork = works.reduce((sum, w) => sum + (w.total || 0), 0);
+    const totalPaid = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+    const balance = totalWork - totalPaid;
+
+    let statusBadge = '';
+    if (balance > 0) {
+      statusBadge = `<span class="status-badge large" style="background: #ff4757;">Unpaid: £${balance.toFixed(2)}</span>`;
+    } else if (totalWork > 0) {
+      statusBadge = `<span class="status-badge large" style="background: #2ecc71;">✓ Paid</span>`;
+    }
+
+    return `
+      <div class="loyal-vehicle-item" style="cursor: pointer; position: relative;">
+        <div class="vehicle-info-block" onclick="openVehicleDetailsModal('${client.id}', '${vehicle.id}')">
+          <div class="vehicle-name">🚐 ${vehicle.car}</div>
+          ${vehicle.notes ? `<div class="loyal-vehicle-notes">${vehicle.notes}</div>` : ''}
+          <div class="vehicle-date">Added: ${new Date(vehicle.addedDate).toLocaleDateString()}</div>
+          ${statusBadge}
+          <div style="margin-top: 8px; font-size: 13px; color: #666;">
+            <span>Works: ${works.length}</span> | 
+            <span>Total: £${totalWork.toFixed(2)}</span> | 
+            <span>Paid: £${totalPaid.toFixed(2)}</span>
+          </div>
+        </div>
+        <button class="btn-delete-vehicle" onclick="event.stopPropagation(); deleteVehicle('${client.id}', '${vehicle.id}')">Delete</button>
       </div>
-      <button class="btn-delete-vehicle" onclick="deleteVehicle('${client.id}', '${vehicle.id}')">Delete</button>
-    </div>
-  `).join('');
+    `;
+  }).join('');
+}
+
+function openVehicleDetailsModal(clientId, vehicleId) {
+  currentLoyalClientId = clientId;
+  currentVehicleId = vehicleId;
+  const modal = document.getElementById('vehicleDetailsModal');
+  if (modal) {
+    modal.classList.add('active');
+    renderVehicleDetails(clientId, vehicleId);
+  }
+}
+
+function closeVehicleDetailsModal() {
+  const modal = document.getElementById('vehicleDetailsModal');
+  if (modal) modal.classList.remove('active');
+  currentVehicleId = null;
+}
+
+function renderVehicleDetails(clientId, vehicleId) {
+  const client = loyalClients.find(c => c.id === clientId);
+  if (!client) return;
+
+  const vehicle = client.vehicles.find(v => v.id === vehicleId);
+  if (!vehicle) return;
+
+  // Update title
+  const titleEl = document.getElementById('vehicleDetailsTitle');
+  if (titleEl) titleEl.textContent = `🚐 ${vehicle.car}`;
+
+  const works = vehicle.works || [];
+  const payments = vehicle.payments || [];
+
+  // Render works list
+  const worksList = document.getElementById('vehicleWorksList');
+  if (worksList) {
+    if (works.length === 0) {
+      worksList.innerHTML = '<p style="text-align:center;color:#999;padding:20px;">No work added yet</p>';
+    } else {
+      worksList.innerHTML = works.map(work => `
+        <div class="work-item">
+          <div class="work-info">
+            <div class="work-desc"><strong>${work.desc}</strong></div>
+            ${work.parts ? `<div class="work-parts">Parts: ${work.parts}</div>` : ''}
+            <div class="work-prices">
+              Labour: £${work.workPrice.toFixed(2)} | Parts: £${work.partsPrice.toFixed(2)}
+            </div>
+            <div class="work-date">${new Date(work.date).toLocaleDateString()}</div>
+          </div>
+          <div class="work-total">£${work.total.toFixed(2)}</div>
+          <button class="btn-delete-small" onclick="deleteVehicleWork('${clientId}', '${vehicleId}', '${work.id}')">✕</button>
+        </div>
+      `).join('');
+    }
+  }
+
+  // Render payments list
+  const paymentsList = document.getElementById('vehiclePaymentsList');
+  if (paymentsList) {
+    if (payments.length === 0) {
+      paymentsList.innerHTML = '<p style="text-align:center;color:#999;padding:20px;">No payments yet</p>';
+    } else {
+      paymentsList.innerHTML = payments.map(payment => `
+        <div class="payment-item">
+          <div class="payment-info">
+            <div class="payment-amount">£${payment.amount.toFixed(2)}</div>
+            <div class="payment-date">${new Date(payment.date).toLocaleDateString()}</div>
+          </div>
+          <button class="btn-delete-small" onclick="deleteVehiclePayment('${clientId}', '${vehicleId}', '${payment.id}')">✕</button>
+        </div>
+      `).join('');
+    }
+  }
+
+  // Calculate and update summary
+  const totalWork = works.reduce((sum, w) => sum + (w.total || 0), 0);
+  const totalPaid = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+  const balance = totalWork - totalPaid;
+
+  const totalWorkEl = document.getElementById('vTotalWork');
+  const totalPaidEl = document.getElementById('vTotalPaid');
+  const balanceEl = document.getElementById('vBalance');
+
+  if (totalWorkEl) totalWorkEl.textContent = `£${totalWork.toFixed(2)}`;
+  if (totalPaidEl) totalPaidEl.textContent = `£${totalPaid.toFixed(2)}`;
+  if (balanceEl) {
+    balanceEl.textContent = `£${balance.toFixed(2)}`;
+    balanceEl.style.color = balance > 0 ? '#ff4757' : '#2ecc71';
+  }
 }
 
 // Event Listeners for Loyal Clients
@@ -1954,11 +2156,58 @@ document.getElementById('loyalSearch')?.addEventListener('input', debounce(() =>
   renderLoyalClientsList();
 }, 300));
 
+// Vehicle Details Modal
+document.getElementById('vehicleWorkForm')?.addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (!currentLoyalClientId || !currentVehicleId) return;
+
+  const desc = document.getElementById('vWorkDesc').value;
+  const parts = document.getElementById('vWorkParts').value;
+  const workPrice = document.getElementById('vWorkPrice').value;
+  const partsPrice = document.getElementById('vPartsPrice').value || '0';
+
+  if (!desc || !workPrice) {
+    alert('Please fill in service description and labour cost');
+    return;
+  }
+
+  addWorkToVehicle(currentLoyalClientId, currentVehicleId, desc, parts, workPrice, partsPrice);
+  e.target.reset();
+});
+
+document.getElementById('vehiclePaymentForm')?.addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (!currentLoyalClientId || !currentVehicleId) return;
+
+  const amount = document.getElementById('vPaymentAmount').value;
+
+  if (!amount || parseFloat(amount) <= 0) {
+    alert('Please enter a valid payment amount');
+    return;
+  }
+
+  addPaymentToVehicle(currentLoyalClientId, currentVehicleId, amount);
+  e.target.reset();
+});
+
+document.getElementById('closeVehicleDetailsModal')?.addEventListener('click', closeVehicleDetailsModal);
+
+// Overlay click handlers
+document.getElementById('vehicleDetailsModal')?.addEventListener('click', (e) => {
+  if (e.target.id === 'vehicleDetailsModal') {
+    closeVehicleDetailsModal();
+  }
+});
+
 // Make functions global
 window.openLoyalClientModal = openLoyalClientModal;
 window.closeLoyalClientModal = closeLoyalClientModal;
 window.deleteLoyalClient = deleteLoyalClient;
 window.deleteVehicle = deleteVehicle;
+window.openVehicleDetailsModal = openVehicleDetailsModal;
+window.closeVehicleDetailsModal = closeVehicleDetailsModal;
+window.deleteVehicleWork = deleteVehicleWork;
+window.deleteVehiclePayment = deleteVehiclePayment;
 
 // Initial render
 loadLoyalClients();
