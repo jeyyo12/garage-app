@@ -122,33 +122,14 @@
     margin-bottom: 10px;
   }
 
-  /* Filters section - full width buttons stacked */
+  /* Hide filters section on mobile - only show on desktop */
   .stock-toolbar .filters {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    display: none;
   }
 
-  .stock-toolbar .filters .pill {
-    padding: 10px 12px;
-    font-size: 11px;
-    width: 100%;
-    text-align: center;
-    border-radius: 8px;
-  }
-
-  /* Categories section - 2 column grid */
+  /* Hide categories section on mobile */
   .stock-toolbar .categories {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
-
-  .stock-toolbar .categories .pill {
-    padding: 8px 10px;
-    font-size: 10px;
-    text-align: center;
-    border-radius: 8px;
+    display: none;
   }
 
   /* Sort section - full width */
@@ -171,12 +152,9 @@
     border-radius: 8px;
   }
 
-  /* Reset filters button - full width */
+  /* Reset filters button - hidden on mobile */
   #resetFiltersBtn {
-    width: 100%;
-    padding: 10px 12px;
-    font-size: 11px;
-    margin-bottom: 10px;
+    display: none;
   }
 
   /* Stock summary - full width and readable */
