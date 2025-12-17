@@ -10,6 +10,80 @@
   --shadow: 0 18px 60px rgba(0, 0, 0, 0.08);
 }
 
+/* Toast Notifications */
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.toast {
+  background: white;
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 280px;
+  animation: slideIn 0.3s ease forwards;
+}
+
+.toast.success {
+  border-left-color: var(--success);
+}
+
+.toast.info {
+  border-left-color: var(--accent);
+}
+
+.toast.error {
+  border-left-color: var(--danger);
+}
+
+.toast-text {
+  color: var(--text);
+  font-weight: 500;
+  font-size: 14px;
+  flex: 1;
+}
+
+.toast-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+}
+
+.toast.hide {
+  animation: slideOut 0.3s ease forwards;
+}
+
 * { 
   box-sizing: border-box;
   -webkit-tap-highlight-color: rgba(255, 149, 80, 0.2);
@@ -3698,6 +3772,18 @@ button.secondary:hover {
   .product-info-below .used,
   .product-info-below .availability {
     font-size: 10px;
+  }
+
+  /* Toast notifications on small mobile */
+  .toast-container {
+    right: 10px;
+    top: 10px;
+    left: 10px;
+  }
+
+  .toast {
+    min-width: auto;
+    margin-bottom: 10px;
   }
 
   /* Client cards on small mobile */

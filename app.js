@@ -174,6 +174,35 @@ function savePaidClients(clients) {
   localStorage.setItem(PAID_CLIENTS_KEY, JSON.stringify(clients));
 }
 
+// Toast Notification System
+function showToast(message, type = 'info', duration = 3000) {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+  
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  
+  let icon = 'ℹ️';
+  if (type === 'success') icon = '✓';
+  else if (type === 'error') icon = '✕';
+  else if (type === 'info') icon = '📦';
+  
+  toast.innerHTML = `
+    <span class="toast-icon">${icon}</span>
+    <span class="toast-text">${message}</span>
+  `;
+  
+  container.appendChild(toast);
+  
+  // Auto remove after duration
+  setTimeout(() => {
+    toast.classList.add('hide');
+    setTimeout(() => toast.remove(), 300);
+  }, duration);
+  
+  return toast;
+}
+
 function loadSavedItems() {
   try { return JSON.parse(localStorage.getItem(ITEMS_KEY) || '[]'); }
   catch { return []; }
@@ -398,6 +427,9 @@ function onTap(id, evt) {
   updateHeaderStats();
   updateStockSummary();
   saveItemsState();
+  
+  // Show notification
+  showToast(`✓ ${item.name} taken from stock`, 'success', 2000);
 }
 
 function updateUI(item) {
