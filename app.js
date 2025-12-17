@@ -2010,9 +2010,12 @@ function renderLoyalClientsList() {
           <div class="loyal-client-photo">${photoHtml}</div>
           <div class="loyal-client-main-info">
             <h3>${client.name}</h3>
-            <div class="client-number">Client #${client.clientNumber}</div>
             ${client.phone ? `<div class="client-phone">📞 ${client.phone}</div>` : ''}
             ${badgesHtml}
+          </div>
+          <div class="loyal-client-spent">
+            <div class="spent-label">Total Spent</div>
+            <div class="spent-amount">£${totalWork.toFixed(2)}</div>
           </div>
         </div>
         <div class="loyal-vehicles">
