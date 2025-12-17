@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Garage Management System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="shell">
+    <div class="glow"></div>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs" role="tablist" aria-label="Section navigation">
+      <button id="tab-stock" class="nav-tab active" data-tab="stock" role="tab" aria-controls="stock-tab" aria-selected="true">
+        <span class="icon">📦</span>
+        <span>Stock</span>
+      </button>
+      <button id="tab-clients" class="nav-tab" data-tab="clients" role="tab" aria-controls="clients-tab" aria-selected="false">
+        <span class="icon">👥</span>
+        <span>Clients</span>
+      </button>
+      <button id="tab-analytics" class="nav-tab" data-tab="analytics" role="tab" aria-controls="analytics-tab" aria-selected="false">
+        <span class="icon">📊</span>
+        <span>Analytics</span>
+      </button>
+      <button id="tab-sales" class="nav-tab" data-tab="sales" role="tab" aria-controls="sales-tab" aria-selected="false">
+        <span class="icon">💰</span>
+        <span>Sales Log</span>
+      </button>
+      <button id="tab-history" class="nav-tab" data-tab="history" role="tab" aria-controls="history-tab" aria-selected="false">
+        <span class="icon">📅</span>
+        <span>History</span>
+      </button>
+    </nav>
+
+    <!-- Tab: Stock -->
+    <section id="stock-tab" class="tab-content active" role="tabpanel" aria-labelledby="tab-stock" aria-hidden="false">
+      <header>
+        <div class="brand">
+          <h1>📦 Stock Management</h1>
+          <p>Tap image to reduce stock</p>
+        </div>
+        <div class="controls">
+          <div class="stats">
+            <div class="stat">Sold Today: <strong id="count12h">0</strong></div>
+            <div class="stat">💷 Revenue: <strong id="revenueToday">0</strong> GBP</div>
+            <div class="stat timer" id="timerDisplay">🕐 <span id="resetCountdown">12:00</span></div>
+          </div>
+          <div class="search">
+            <span>🔎</span>
+            <input id="search" type="search" placeholder="Search product..." />
+          </div>
+          <button class="ghost" id="undoBtn" title="Undo last action">↶ Undo</button>
+          <button class="primary" id="openModal">+ Add Stock</button>
+        </div>
+      </header>
+      <!-- Stock summary (totals) -->
+      <div class="stock-summary" id="stockSummary" aria-live="polite">
+        <span class="chip">Items in stock: <strong id="sumItems">0</strong></span>
+        <span class="chip warning">Low stock: <strong id="sumLow">0</strong></span>
+        <span class="chip danger">Out of stock: <strong id="sumOut">0</strong></span>
+      </div>
+
+      <!-- Stock toolbar: filters + sort -->
+      <div class="stock-toolbar" aria-label="Stock controls">
+        <div class="filters" role="group" aria-label="Filters">
+          <button type="button" class="pill active" data-filter="all">All</button>
+          <button type="button" class="pill" data-filter="low">Low</button>
+          <button type="button" class="pill" data-filter="out">Out</button>
+        </div>
+        <div class="categories" role="group" aria-label="Categories">
+          <button type="button" class="pill category active" data-category="all">All</button>
+          <button type="button" class="pill category" data-category="Fluids">Fluids</button>
+          <button type="button" class="pill category" data-category="Filters">Filters</button>
+          <button type="button" class="pill category" data-category="Brakes">Brakes</button>
+          <button type="button" class="pill category" data-category="Electrical">Electrical</button>
+          <button type="button" class="pill category" data-category="Consumables">Consumables</button>
+        </div>
+        <div class="sort">
+          <label for="sortSelect">Sort</label>
+          <select id="sortSelect" aria-label="Sort products">
+            <option value="stock-desc">Stock ↓</option>
+            <option value="stock-asc">Stock ↑</option>
+            <option value="name-asc">Name A–Z</option>
+          </select>
+        </div>
+      </div>
+      <button type="button" class="ghost small" id="resetFiltersBtn" title="Clear all filters and sorting">↻ Reset Filters</button>
+
+      <section class="grid" id="grid"></section>
+    </section>
+
+    <!-- Tab: Clients -->
+    <section id="clients-tab" class="tab-content" role="tabpanel" aria-labelledby="tab-clients" aria-hidden="true">
+      <div class="clients-container">
+        <div class="clients-header">
+          <h2>👥 Client Management</h2>
+        </div>
+
+        <!-- Add Client Form -->
+        <form id="quickClientForm" class="quick-form">
+          <input id="clientName" type="text" placeholder="Client name" required />
+          <input id="clientPhone" type="tel" placeholder="Phone" />
+          <input id="clientCar" type="text" placeholder="Car (e.g., BMW 320d 2015)" />
+          <button type="submit" class="primary small">+ Add</button>
+        </form>
+
+        <!-- Search & Filter -->
+        <div class="search-filter">
+          <input id="clientSearch" type="text" placeholder="🔍 Search client..." />
+        </div>
+
+        <!-- Clients Grid -->
+        <div class="clients-grid" id="clientsList"></div>
+
+        <!-- Total Due -->
+        <div class="total-due">
+          <div>Total Due:</div>
+          <div class="amount" id="totalDue">£0.00</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab: Analytics -->
+    <section id="analytics-tab" class="tab-content" role="tabpanel" aria-labelledby="tab-analytics" aria-hidden="true">
+      <div class="analytics-container">
+        <h2>📊 Analytics & Reports</h2>
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Sold Today</div>
+            <div class="stat-value" id="stat-sold">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Revenue Today</div>
+            <div class="stat-value" id="stat-revenue">£0.00</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Active Clients</div>
+            <div class="stat-value" id="stat-active-clients">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Total Debt</div>
+            <div class="stat-value" id="stat-total-debt">£0.00</div>
+          </div>
+        </div>
+
+        <!-- Top Products -->
+        <div class="report-section">
+          <h3>🔥 Top Products (Sold Today)</h3>
+          <div id="topProducts" class="report-list"></div>
+        </div>
+
+        <!-- Top Clients -->
+        <div class="report-section">
+          <h3>⭐ Top Clients (Spend)</h3>
+          <div id="topClients" class="report-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab: Sales Log -->
+    <section id="sales-tab" class="tab-content" role="tabpanel" aria-labelledby="tab-sales" aria-hidden="true">
+      <header>
+        <div class="brand">
+          <h1>💰 Today's Sales Log</h1>
+          <p>View and manage today's sales</p>
+        </div>
+      </header>
+
+      <!-- Today's Sales Log -->
+      <div class="sales-log-section">
+        <div class="sales-log-container">
+          <table class="sales-table" id="salesTable">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Qty</th>
+                <th>Price (£)</th>
+                <th>Total (£)</th>
+                <th>Time</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="salesTableBody">
+              <tr>
+                <td colspan="6" style="text-align: center; color: #666; padding: 16px;">No sales yet today</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab: History -->
+    <section id="history-tab" class="tab-content" role="tabpanel" aria-labelledby="tab-history" aria-hidden="true">
+      <header>
+        <div class="brand">
+          <h1>📅 History</h1>
+          <p>Track daily and monthly performance</p>
+        </div>
+      </header>
+
+      <!-- Daily History Section -->
+      <div class="history-section">
+        <h2>📊 Daily History</h2>
+        <div class="history-container">
+          <table class="history-table" id="dailyHistoryTable">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Revenue (£)</th>
+                <th>Transactions</th>
+                <th>Products Sold</th>
+              </tr>
+            </thead>
+            <tbody id="dailyHistoryTableBody">
+              <tr>
+                <td colspan="4" style="text-align: center; color: #666;">No daily data yet</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Monthly History Section -->
+      <div class="history-section">
+        <h2>📈 Monthly History</h2>
+        <div class="history-container">
+          <table class="history-table" id="monthlyHistoryTable">
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Revenue (£)</th>
+                <th>Transactions</th>
+                <th>Products Sold</th>
+                <th>Active Clients</th>
+              </tr>
+            </thead>
+            <tbody id="monthlyHistoryTableBody">
+              <tr>
+                <td colspan="5" style="text-align: center; color: #666;">No monthly data yet</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Client Details Modal -->
+  <div class="overlay" id="clientModal">
+    <div class="modal large">
+      <div class="modal-header">
+        <h2 id="clientModalTitle">Client Details</h2>
+        <button type="button" id="closeClientModal" class="close-btn">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Work Section -->
+        <div class="section">
+          <h3>Works</h3>
+          <form id="workForm" class="form-group">
+            <textarea id="workDesc" placeholder="Work description..." required></textarea>
+            <textarea id="partsList" placeholder="Parts used..." ></textarea>
+            <div class="form-row">
+              <input id="workPrice" type="number" min="0" step="0.01" placeholder="Labour cost (£)" required />
+              <input id="partsPrice" type="number" min="0" step="0.01" placeholder="Parts cost (£)" required />
+            </div>
+            <button type="submit" class="primary small">+ Add Work</button>
+          </form>
+          <div id="workList" class="work-list"></div>
+        </div>
+
+        <!-- Payment Section -->
+        <div class="section">
+          <h3>💰 Payments</h3>
+          <div class="payment-summary">
+            <div>
+              <div class="label">Total</div>
+              <div class="value" id="totalWork">£0.00</div>
+            </div>
+            <div>
+              <div class="label">Paid</div>
+              <div class="value" id="totalPaid">£0.00</div>
+            </div>
+            <div>
+              <div class="label">Remaining</div>
+              <div class="value highlight" id="remainingWork">£0.00</div>
+            </div>
+          </div>
+
+          <form id="paymentForm" class="form-group">
+            <div class="form-row">
+              <input id="paymentAmount" type="number" min="0" step="0.01" placeholder="Payment amount (£)" />
+              <button type="submit" class="primary small">Record</button>
+            </div>
+          </form>
+
+          <div id="paymentList" class="payment-list"></div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" id="markClientPaidBtn" class="primary">✓ Mark Paid</button>
+        <button type="button" id="deleteClientInModalBtn" class="danger">🗑️ Delete</button>
+        <button type="button" id="closeClientModalBtn" class="ghost">Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stock Add Modal -->
+  <div class="overlay" id="stockModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Add Stock</h2>
+        <button type="button" id="closeStockModal" class="close-btn">✕</button>
+      </div>
+      <form id="addStockForm" class="form-group">
+        <label>Product</label>
+        <div class="product-picker">
+          <input id="productSearch" type="text" placeholder="Search..." />
+          <div id="productList" class="product-list"></div>
+          <div id="selectedProduct" class="selected-product" style="display: none;"></div>
+        </div>
+        <input id="itemSelect" type="hidden" />
+        
+        <label>Quantity</label>
+        <input id="qty" type="number" min="1" value="5" required />
+        
+        <label>Price (£)</label>
+        <input id="price" type="number" min="0" step="0.01" placeholder="99.99" />
+        
+        <div class="form-row">
+          <button type="button" class="ghost" id="closeStockModalBtn">Cancel</button>
+          <button type="submit" class="primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Mobile Fixed Stats Bar -->
+  <div class="mobile-stats">
+    <span class="chip">Sold: <strong id="mCount12h">0</strong></span>
+    <span class="chip">💷 <strong id="mRevenueToday">0</strong> GBP</span>
+    <span class="chip timer" id="mTimerDisplay">🕐 <span id="mResetCountdown">12:00</span></span>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
