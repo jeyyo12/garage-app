@@ -96,32 +96,48 @@
 
     <!-- Tab: Clients -->
     <section id="clients-tab" class="tab-content" role="tabpanel" aria-labelledby="tab-clients" aria-hidden="true">
+      <header>
+        <div class="brand">
+          <h1>👥 Client Management</h1>
+          <p>Manage clients, track work & payments</p>
+        </div>
+      </header>
+
       <div class="clients-container">
-        <div class="clients-header">
-          <h2>👥 Client Management</h2>
+        <!-- Quick Stats -->
+        <div class="clients-stats">
+          <div class="stat-item">
+            <div class="stat-label">Active Clients</div>
+            <div class="stat-number" id="activeClientsCount">0</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Total Due</div>
+            <div class="stat-amount" id="totalDueAmount">£0.00</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Fully Paid</div>
+            <div class="stat-number" id="paidClientsCount">0</div>
+          </div>
         </div>
 
-        <!-- Add Client Form -->
-        <form id="quickClientForm" class="quick-form">
-          <input id="clientName" type="text" placeholder="Client name" required />
-          <input id="clientPhone" type="tel" placeholder="Phone" />
-          <input id="clientCar" type="text" placeholder="Car (e.g., BMW 320d 2015)" />
-          <button type="submit" class="primary small">+ Add</button>
-        </form>
-
-        <!-- Search & Filter -->
-        <div class="search-filter">
-          <input id="clientSearch" type="text" placeholder="🔍 Search client..." />
+        <!-- Add Client Section -->
+        <div class="add-client-section">
+          <h3>➕ New Client</h3>
+          <form id="quickClientForm" class="add-client-form">
+            <input id="clientName" type="text" placeholder="Client name" required />
+            <input id="clientPhone" type="tel" placeholder="Phone number" />
+            <input id="clientCar" type="text" placeholder="Car model" />
+            <button type="submit" class="primary">Add Client</button>
+          </form>
         </div>
 
-        <!-- Clients Grid -->
-        <div class="clients-grid" id="clientsList"></div>
-
-        <!-- Total Due -->
-        <div class="total-due">
-          <div>Total Due:</div>
-          <div class="amount" id="totalDue">£0.00</div>
+        <!-- Search & Filter Section -->
+        <div class="clients-search-section">
+          <input id="clientSearch" type="text" placeholder="🔍 Search clients by name, phone, or car..." />
         </div>
+
+        <!-- Clients List -->
+        <div class="clients-list" id="clientsList"></div>
       </div>
     </section>
 
@@ -321,6 +337,82 @@
         <button type="button" id="markClientPaidBtn" class="primary">✓ Mark Fully Paid</button>
         <button type="button" id="deleteClientInModalBtn" class="danger">🗑️ Delete Client</button>
         <button type="button" id="closeClientModalBtn" class="ghost">Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Invoice Viewer Modal (Full Screen) -->
+  <div class="overlay fullscreen" id="invoiceViewer">
+    <div class="invoice-viewer-container">
+      <div class="invoice-viewer-header">
+        <h2>📋 Client Invoice</h2>
+        <button type="button" id="closeInvoiceViewer" class="close-btn">✕</button>
+      </div>
+
+      <div class="invoice-viewer-content">
+        <!-- Invoice Header -->
+        <div class="invoice-viewer-header-section">
+          <div class="invoice-viewer-client-info">
+            <h3 id="viewInvoiceClientName">Client Name</h3>
+            <p id="viewInvoiceClientPhone">📞 Phone</p>
+            <p id="viewInvoiceClientCar">🚗 Car</p>
+          </div>
+          <div class="invoice-viewer-status-section">
+            <div id="viewInvoiceStatus" class="status-badge large">PENDING</div>
+            <p class="invoice-date" id="invoiceDate"></p>
+          </div>
+        </div>
+
+        <!-- Services Table -->
+        <div class="invoice-viewer-section">
+          <h3>Services & Work</h3>
+          <table class="invoice-table">
+            <thead>
+              <tr>
+                <th>Description</th>
+                <th>Parts</th>
+                <th>Labour</th>
+                <th>Parts Cost</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody id="viewInvoiceItems">
+              <tr>
+                <td colspan="5" style="text-align: center; color: #999;">No services recorded</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Invoice Summary -->
+        <div class="invoice-viewer-section">
+          <div class="invoice-viewer-summary">
+            <div class="summary-row">
+              <span>Subtotal:</span>
+              <span id="viewSubtotalWork">£0.00</span>
+            </div>
+            <div class="summary-row">
+              <span>Paid:</span>
+              <span id="viewPaidAmount" class="paid">£0.00</span>
+            </div>
+            <div class="summary-row total">
+              <span>Total Due:</span>
+              <span id="viewTotalDueInvoice">£0.00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment History -->
+        <div class="invoice-viewer-section">
+          <h3>Payment History</h3>
+          <div id="viewPaymentList" class="payment-list"></div>
+        </div>
+      </div>
+
+      <div class="invoice-viewer-footer">
+        <button type="button" id="printInvoiceBtn" class="primary">🖨️ Print Invoice</button>
+        <button type="button" id="editInvoiceBtn" class="secondary">✏️ Edit Details</button>
+        <button type="button" id="closeInvoiceViewerBtn" class="ghost">Back</button>
       </div>
     </div>
   </div>

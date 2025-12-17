@@ -1004,45 +1004,171 @@ function renderClientsList(searchTerm = '') {
     );
   }
   
-  clients.sort((a, b) => b.totalAmount - a.totalAmount);
+  // Calculate totals for stats
+  const totalDueAmount = clients.reduce((sum, c) => {
+    const work = c.works?.reduce((s, w) => s + w.total, 0) || 0;
+    const paid = c.payments?.reduce((s, p) => s + p.amount, 0) || 0;
+    return sum + Math.max(0, work - paid);
+  }, 0);
   
+  const paidClientsCount = clients.filter(c => {
+    const work = c.works?.reduce((s, w) => s + w.total, 0) || 0;
+    const paid = c.payments?.reduce((s, p) => s + p.amount, 0) || 0;
+    return work > 0 && (work - paid) <= 0;
+  }).length;
+  
+  // Update stats display
+  const activeClientsCountElem = document.getElementById('activeClientsCount');
+  const totalDueAmountElem = document.getElementById('totalDueAmount');
+  const paidClientsCountElem = document.getElementById('paidClientsCount');
+  
+  if (activeClientsCountElem) activeClientsCountElem.textContent = clients.length;
+  if (totalDueAmountElem) totalDueAmountElem.textContent = '£' + totalDueAmount.toFixed(2);
+  if (paidClientsCountElem) paidClientsCountElem.textContent = paidClientsCount;
+  
+  const clientsList = document.getElementById('clientsList');
   clientsList.innerHTML = '';
-  let total = 0;
   
   if (clients.length === 0) {
-    clientsList.innerHTML = '<div class="empty">No clients found.</div>';
+    clientsList.innerHTML = '<div class="empty" style="text-align: center; padding: 60px 24px;">No clients found</div>';
   } else {
     clients.forEach(client => {
-      const paid = client.payments.reduce((sum, p) => sum + p.amount, 0);
-      const remaining = Math.max(0, client.totalAmount - paid);
-      total += remaining;
+      const workTotal = client.works?.reduce((sum, w) => sum + w.total, 0) || 0;
+      const paidTotal = client.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
+      const remaining = Math.max(0, workTotal - paidTotal);
       
       const card = document.createElement('div');
       card.className = 'client-card';
+      
       card.innerHTML = `
         <div class="client-info">
           <h3>${client.name}</h3>
-          <p>${client.car || 'Masina nedefinita'}</p>
-          <p>${client.phone || 'Telefon nedefinit'}</p>
-          <p style="margin-top: 6px; font-size: 11px;">${client.works.length} lucrari • ${client.payments.length} plati</p>
+          <p>${client.car || 'Car not specified'}</p>
+          <p>${client.phone || 'Phone not specified'}</p>
         </div>
-        <div class="client-stats">
-          <div style="color: var(--muted);">Total: <strong>£${client.totalAmount.toFixed(2)}</strong></div>
-          <div style="color: ${remaining > 0 ? '#c0392b' : '#27ae60'}; margin-top: 4px;">Ramas: <strong>£${remaining.toFixed(2)}</strong></div>
+        <div class="client-card-details">
+          <div class="client-card-stat">
+            <div class="client-card-stat-label">Services</div>
+            <div class="client-card-stat-value">${client.works?.length || 0}</div>
+          </div>
+          <div class="client-card-stat">
+            <div class="client-card-stat-label">Total Work</div>
+            <div class="client-card-stat-value">£${workTotal.toFixed(2)}</div>
+          </div>
+          <div class="client-card-stat">
+            <div class="client-card-stat-label">Remaining</div>
+            <div class="client-card-stat-value" style="color: ${remaining > 0 ? '#c0392b' : '#27ae60'};">£${remaining.toFixed(2)}</div>
+          </div>
+          <div class="client-card-action">
+            <button type="button" class="client-card-btn" onclick="openInvoiceViewer(${client.id})">📋 Invoice</button>
+            <button type="button" class="client-card-btn" onclick="openClientModal(${client.id})">✏️ Edit</button>
+          </div>
         </div>
       `;
-      card.addEventListener('click', () => openClientModal(client.id));
+      
       clientsList.appendChild(card);
     });
   }
+}
+
+function openInvoiceViewer(clientId) {
+  const clients = loadClients();
+  const client = clients.find(c => c.id === clientId);
+  if (!client) return;
   
-  totalDue.textContent = '£' + total.toFixed(2);
+  renderInvoiceViewer(client);
+  
+  const invoiceViewer = document.getElementById('invoiceViewer');
+  if (invoiceViewer) {
+    invoiceViewer.classList.add('active');
+  }
+}
+
+function renderInvoiceViewer(client) {
+  // Client info
+  document.getElementById('viewInvoiceClientName').textContent = client.name;
+  document.getElementById('viewInvoiceClientPhone').textContent = `📞 ${client.phone}`;
+  document.getElementById('viewInvoiceClientCar').textContent = `🚗 ${client.car}`;
+  
+  // Date
+  const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  document.getElementById('invoiceDate').textContent = `Invoice Date: ${today}`;
+  
+  // Calculate totals
+  const totalWork = client.works?.reduce((sum, w) => sum + w.total, 0) || 0;
+  const totalPaid = client.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
+  const totalDue = totalWork - totalPaid;
+  
+  // Status badge
+  const statusBadge = document.getElementById('viewInvoiceStatus');
+  if (totalWork === 0) {
+    statusBadge.textContent = 'NEW CLIENT';
+    statusBadge.className = 'status-badge large pending';
+  } else if (totalDue <= 0) {
+    statusBadge.textContent = '✓ PAID';
+    statusBadge.className = 'status-badge large paid';
+  } else {
+    statusBadge.textContent = 'PENDING';
+    statusBadge.className = 'status-badge large pending';
+  }
+  
+  // Render work items in table
+  const itemsContainer = document.getElementById('viewInvoiceItems');
+  itemsContainer.innerHTML = '';
+  
+  if (!client.works || client.works.length === 0) {
+    itemsContainer.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999; padding: 24px;">No services recorded</td></tr>';
+  } else {
+    client.works.forEach(work => {
+      const workDate = new Date(work.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${work.desc}</td>
+        <td>${work.parts || '-'}</td>
+        <td>£${work.workPrice.toFixed(2)}</td>
+        <td>£${work.partsPrice.toFixed(2)}</td>
+        <td style="font-weight: 700; color: var(--accent-2);">£${work.total.toFixed(2)}</td>
+      `;
+      itemsContainer.appendChild(row);
+    });
+  }
+  
+  // Totals
+  document.getElementById('viewSubtotalWork').textContent = `£${totalWork.toFixed(2)}`;
+  document.getElementById('viewPaidAmount').textContent = `£${totalPaid.toFixed(2)}`;
+  document.getElementById('viewTotalDueInvoice').textContent = `£${Math.max(0, totalDue).toFixed(2)}`;
+  
+  // Payment history
+  renderInvoiceViewerPayments(client);
+}
+
+function renderInvoiceViewerPayments(client) {
+  const paymentList = document.getElementById('viewPaymentList');
+  paymentList.innerHTML = '';
+  
+  if (!client.payments || client.payments.length === 0) {
+    paymentList.innerHTML = '<p style="text-align: center; color: #999; font-size: 13px; padding: 16px;">No payments recorded yet</p>';
+  } else {
+    client.payments.forEach(payment => {
+      const payDate = new Date(payment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
+      const div = document.createElement('div');
+      div.className = 'payment-item';
+      div.innerHTML = `
+        <span class="date">${payDate}</span>
+        <span class="amount">✓ £${payment.amount.toFixed(2)}</span>
+      `;
+      paymentList.appendChild(div);
+    });
+  }
 }
 
 function openClientModal(clientId) {
   currentClientId = clientId;
   renderClientInvoice(clientId);
-  clientModal.classList.add('active');
+  const clientModal = document.getElementById('clientModal');
+  if (clientModal) {
+    clientModal.classList.add('active');
+  }
 }
 
 function renderClientInvoice(clientId) {
@@ -1430,6 +1556,50 @@ if (closeClientModal || closeClientModalBtn) {
 clientModal && clientModal.addEventListener('click', (e) => {
   if (e.target === clientModal) toggleClientModal(false);
 });
+
+// Invoice Viewer Modal
+const invoiceViewer = document.getElementById('invoiceViewer');
+const closeInvoiceViewer = document.getElementById('closeInvoiceViewer');
+const closeInvoiceViewerBtn = document.getElementById('closeInvoiceViewerBtn');
+const editInvoiceBtn = document.getElementById('editInvoiceBtn');
+const printInvoiceBtn = document.getElementById('printInvoiceBtn');
+
+function closeInvoiceViewerModal() {
+  if (invoiceViewer) {
+    invoiceViewer.classList.remove('active');
+  }
+}
+
+if (closeInvoiceViewer) {
+  closeInvoiceViewer.addEventListener('click', closeInvoiceViewerModal);
+}
+
+if (closeInvoiceViewerBtn) {
+  closeInvoiceViewerBtn.addEventListener('click', closeInvoiceViewerModal);
+}
+
+if (editInvoiceBtn) {
+  editInvoiceBtn.addEventListener('click', () => {
+    closeInvoiceViewerModal();
+    if (currentClientId) {
+      setTimeout(() => {
+        openClientModal(currentClientId);
+      }, 200);
+    }
+  });
+}
+
+if (printInvoiceBtn) {
+  printInvoiceBtn.addEventListener('click', () => {
+    window.print();
+  });
+}
+
+if (invoiceViewer) {
+  invoiceViewer.addEventListener('click', (e) => {
+    if (e.target === invoiceViewer) closeInvoiceViewerModal();
+  });
+}
 
 if (workForm) {
   workForm.addEventListener('submit', (e) => {
