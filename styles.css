@@ -3154,3 +3154,62 @@ button.secondary:hover {
     font-size: 16px;
   }
 }
+
+/* Undo Notification */
+.undo-notification {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: #1a1a1a;
+  color: white;
+  padding: 16px 24px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  z-index: 10000;
+  animation: slideInUp 0.3s ease;
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.undo-notification span {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.undo-notification button {
+  background: #ff9500;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.undo-notification button:hover {
+  background: #ff6b35;
+  transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+  .undo-notification {
+    bottom: 20px;
+    right: 20px;
+    left: 20px;
+    padding: 14px 20px;
+  }
+}

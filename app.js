@@ -1719,6 +1719,8 @@ window.deleteSale = deleteSale;
 let loyalClients = [];
 let currentLoyalClientId = null;
 let currentVehicleId = null;
+let lastDeletedItem = null;
+let undoTimeout = null;
 
 function loadLoyalClients() {
   try {
@@ -1776,9 +1778,18 @@ function addVehicleToLoyalClient(clientId, car, notes) {
 
 function deleteLoyalClient(clientId) {
   if (!confirm('Are you sure you want to delete this loyal client?')) return;
+  
+  // Save for undo
+  const deletedClient = loyalClients.find(c => c.id === clientId);
+  lastDeletedItem = {
+    type: 'client',
+    data: deletedClient
+  };
+  
   loyalClients = loyalClients.filter(c => c.id !== clientId);
   saveLoyalClients();
   renderLoyalClientsList();
+  showUndoNotification();
 }
 
 function addWorkToVehicle(clientId, vehicleId, desc, parts, labour, partsCost) {
@@ -1816,9 +1827,19 @@ function deleteVehicleWork(clientId, vehicleId, workId) {
   const vehicle = client.vehicles.find(v => v.id === vehicleId);
   if (!vehicle) return;
 
+  // Save for undo
+  const deletedWork = vehicle.works.find(w => w.id === workId);
+  lastDeletedItem = {
+    type: 'work',
+    data: deletedWork,
+    clientId: clientId,
+    vehicleId: vehicleId
+  };
+
   vehicle.works = vehicle.works.filter(w => w.id !== workId);
   saveLoyalClients();
   renderVehicleWorkDetails(clientId, vehicleId);
+  showUndoNotification();
 }
 
 function addPaymentToVehicle(clientId, vehicleId, amount) {
@@ -1845,10 +1866,19 @@ function deleteVehicle(clientId, vehicleId) {
   const client = loyalClients.find(c => c.id === clientId);
   if (!client) return;
 
+  // Save for undo
+  const deletedVehicle = client.vehicles.find(v => v.id === vehicleId);
+  lastDeletedItem = {
+    type: 'vehicle',
+    data: deletedVehicle,
+    clientId: clientId
+  };
+
   client.vehicles = client.vehicles.filter(v => v.id !== vehicleId);
   saveLoyalClients();
   renderLoyalClientDetails(clientId);
   renderLoyalClientsList();
+  showUndoNotification();
 }
 
 function renderLoyalClientsList() {
@@ -2077,6 +2107,61 @@ function renderVehicleWorkDetails(clientId, vehicleId) {
   if (balanceEl) balanceEl.textContent = `£${balance.toFixed(2)}`;
 }
 
+function showUndoNotification() {
+  const undoBtn = document.getElementById('undoLoyalBtn');
+  if (!undoBtn) return;
+
+  // Clear any existing timeout
+  if (undoTimeout) clearTimeout(undoTimeout);
+
+  // Show notification
+  undoBtn.style.display = 'flex';
+
+  // Auto-hide after 5 seconds
+  undoTimeout = setTimeout(() => {
+    undoBtn.style.display = 'none';
+    lastDeletedItem = null;
+  }, 5000);
+}
+
+function undoLastDelete() {
+  if (!lastDeletedItem) return;
+
+  const undoBtn = document.getElementById('undoLoyalBtn');
+  if (undoBtn) undoBtn.style.display = 'none';
+
+  if (lastDeletedItem.type === 'client') {
+    // Restore client
+    loyalClients.push(lastDeletedItem.data);
+    saveLoyalClients();
+    renderLoyalClientsList();
+  } else if (lastDeletedItem.type === 'vehicle') {
+    // Restore vehicle
+    const client = loyalClients.find(c => c.id === lastDeletedItem.clientId);
+    if (client) {
+      client.vehicles.push(lastDeletedItem.data);
+      saveLoyalClients();
+      renderLoyalClientDetails(lastDeletedItem.clientId);
+      renderLoyalClientsList();
+    }
+  } else if (lastDeletedItem.type === 'work') {
+    // Restore work
+    const client = loyalClients.find(c => c.id === lastDeletedItem.clientId);
+    if (client) {
+      const vehicle = client.vehicles.find(v => v.id === lastDeletedItem.vehicleId);
+      if (vehicle) {
+        if (!vehicle.works) vehicle.works = [];
+        vehicle.works.push(lastDeletedItem.data);
+        saveLoyalClients();
+        renderVehicleWorkDetails(lastDeletedItem.clientId, lastDeletedItem.vehicleId);
+      }
+    }
+  }
+
+  lastDeletedItem = null;
+  if (undoTimeout) clearTimeout(undoTimeout);
+}
+
 // Event Listeners for Loyal Clients
 document.getElementById('loyalClientForm')?.addEventListener('submit', (e) => {
   e.preventDefault();
@@ -2168,6 +2253,7 @@ window.deleteVehicle = deleteVehicle;
 window.openVehicleWorkModal = openVehicleWorkModal;
 window.closeVehicleWorkModal = closeVehicleWorkModal;
 window.deleteVehicleWork = deleteVehicleWork;
+window.undoLastDelete = undoLastDelete;
 
 // Initial render
 loadLoyalClients();
