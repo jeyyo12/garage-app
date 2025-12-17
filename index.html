@@ -256,58 +256,70 @@
   <div class="overlay" id="clientModal">
     <div class="modal large">
       <div class="modal-header">
-        <h2 id="clientModalTitle">Client Details</h2>
+        <h2 id="clientModalTitle">Client Invoice</h2>
         <button type="button" id="closeClientModal" class="close-btn">✕</button>
       </div>
 
       <div class="modal-body">
-        <!-- Work Section -->
+        <!-- Invoice Header -->
+        <div class="invoice-header">
+          <div>
+            <h3 id="invoiceClientName">Client Name</h3>
+            <p id="invoiceClientPhone" class="muted">Phone</p>
+            <p id="invoiceClientCar" class="muted">Car</p>
+          </div>
+          <div class="invoice-status">
+            <div id="invoiceStatus" class="status-badge">PENDING</div>
+          </div>
+        </div>
+
+        <!-- Work/Services Section -->
         <div class="section">
-          <h3>Works</h3>
+          <h3>🔧 Services & Work</h3>
           <form id="workForm" class="form-group">
-            <textarea id="workDesc" placeholder="Work description..." required></textarea>
-            <textarea id="partsList" placeholder="Parts used..." ></textarea>
+            <textarea id="workDesc" placeholder="Work description (e.g., Oil change, Brake inspection)..." required></textarea>
+            <textarea id="partsList" placeholder="Parts used (optional)..." ></textarea>
             <div class="form-row">
               <input id="workPrice" type="number" min="0" step="0.01" placeholder="Labour cost (£)" required />
               <input id="partsPrice" type="number" min="0" step="0.01" placeholder="Parts cost (£)" required />
             </div>
-            <button type="submit" class="primary small">+ Add Work</button>
+            <button type="submit" class="primary small">+ Add Service</button>
           </form>
-          <div id="workList" class="work-list"></div>
+          <div id="workList" class="invoice-items"></div>
+        </div>
+
+        <!-- Invoice Summary -->
+        <div class="invoice-summary">
+          <div class="summary-row">
+            <span>Subtotal:</span>
+            <span id="subtotalWork">£0.00</span>
+          </div>
+          <div class="summary-row">
+            <span>Paid:</span>
+            <span id="paidAmount" class="paid">£0.00</span>
+          </div>
+          <div class="summary-row total">
+            <span>Total Due:</span>
+            <span id="totalDueInvoice">£0.00</span>
+          </div>
         </div>
 
         <!-- Payment Section -->
         <div class="section">
-          <h3>💰 Payments</h3>
-          <div class="payment-summary">
-            <div>
-              <div class="label">Total</div>
-              <div class="value" id="totalWork">£0.00</div>
-            </div>
-            <div>
-              <div class="label">Paid</div>
-              <div class="value" id="totalPaid">£0.00</div>
-            </div>
-            <div>
-              <div class="label">Remaining</div>
-              <div class="value highlight" id="remainingWork">£0.00</div>
-            </div>
-          </div>
-
+          <h3>💳 Record Payment</h3>
           <form id="paymentForm" class="form-group">
             <div class="form-row">
               <input id="paymentAmount" type="number" min="0" step="0.01" placeholder="Payment amount (£)" />
-              <button type="submit" class="primary small">Record</button>
+              <button type="submit" class="primary small">💾 Record Payment</button>
             </div>
           </form>
-
           <div id="paymentList" class="payment-list"></div>
         </div>
       </div>
 
       <div class="modal-footer">
-        <button type="button" id="markClientPaidBtn" class="primary">✓ Mark Paid</button>
-        <button type="button" id="deleteClientInModalBtn" class="danger">🗑️ Delete</button>
+        <button type="button" id="markClientPaidBtn" class="primary">✓ Mark Fully Paid</button>
+        <button type="button" id="deleteClientInModalBtn" class="danger">🗑️ Delete Client</button>
         <button type="button" id="closeClientModalBtn" class="ghost">Back</button>
       </div>
     </div>

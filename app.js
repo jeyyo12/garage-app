@@ -945,22 +945,17 @@ function addWork(clientId, desc, parts, workPrice, partsPrice) {
   const workId = Date.now();
   const total = parseFloat(workPrice) + parseFloat(partsPrice);
   client.works.push({ id: workId, desc, parts, workPrice: parseFloat(workPrice), partsPrice: parseFloat(partsPrice), total, date: new Date().toISOString() });
-  client.totalAmount += total;
   saveClients(clients);
-  renderClientDetails(clientId);
+  renderClientInvoice(clientId);
 }
 
 function deleteWork(clientId, workId) {
   const clients = loadClients();
   const client = clients.find(c => c.id === clientId);
   if (!client) return;
-  const work = client.works.find(w => w.id === workId);
-  if (work) {
-    client.totalAmount -= work.total;
-  }
   client.works = client.works.filter(w => w.id !== workId);
   saveClients(clients);
-  renderClientDetails(clientId);
+  renderClientInvoice(clientId);
 }
 
 function addPayment(clientId, amount) {
@@ -972,7 +967,7 @@ function addPayment(clientId, amount) {
   if (!client.payments) client.payments = [];
   client.payments.push({ id: Date.now(), amount: paymentAmount, date: new Date().toISOString() });
   saveClients(clients);
-  renderClientDetails(clientId);
+  renderClientInvoice(clientId);
 }
 
 function deleteClient(clientId) {
@@ -1046,8 +1041,102 @@ function renderClientsList(searchTerm = '') {
 
 function openClientModal(clientId) {
   currentClientId = clientId;
-  renderClientDetails(clientId);
+  renderClientInvoice(clientId);
   clientModal.classList.add('active');
+}
+
+function renderClientInvoice(clientId) {
+  const clients = loadClients();
+  const client = clients.find(c => c.id === clientId);
+  if (!client) return;
+  
+  // Update invoice header
+  document.getElementById('invoiceClientName').textContent = client.name;
+  document.getElementById('invoiceClientPhone').textContent = `📞 ${client.phone}`;
+  document.getElementById('invoiceClientCar').textContent = `🚗 ${client.car}`;
+  
+  // Calculate totals
+  const totalWork = client.works?.reduce((sum, w) => sum + w.total, 0) || 0;
+  const totalPaid = client.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
+  const totalDue = totalWork - totalPaid;
+  
+  // Update status badge
+  const statusBadge = document.getElementById('invoiceStatus');
+  if (totalWork === 0) {
+    statusBadge.textContent = 'NEW CLIENT';
+    statusBadge.className = 'status-badge pending';
+  } else if (totalDue <= 0) {
+    statusBadge.textContent = '✓ PAID';
+    statusBadge.className = 'status-badge paid';
+  } else {
+    statusBadge.textContent = 'PENDING';
+    statusBadge.className = 'status-badge pending';
+  }
+  
+  // Render work items
+  renderInvoiceItems(client);
+  
+  // Update summary
+  document.getElementById('subtotalWork').textContent = `£${totalWork.toFixed(2)}`;
+  document.getElementById('paidAmount').textContent = `£${totalPaid.toFixed(2)}`;
+  document.getElementById('totalDueInvoice').textContent = `£${Math.max(0, totalDue).toFixed(2)}`;
+  
+  // Render payments
+  renderPaymentsList(client);
+}
+
+function renderInvoiceItems(client) {
+  const itemsContainer = document.getElementById('workList');
+  itemsContainer.innerHTML = '';
+  
+  if (!client.works || client.works.length === 0) {
+    itemsContainer.innerHTML = '<div class="empty" style="text-align: center; color: #999; padding: 24px;">No services recorded yet</div>';
+    return;
+  }
+  
+  client.works.forEach(work => {
+    const div = document.createElement('div');
+    div.className = 'invoice-item';
+    const workDate = new Date(work.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    
+    div.innerHTML = `
+      <div class="invoice-item-details">
+        <div class="invoice-item-desc">🔧 ${work.desc}</div>
+        ${work.parts ? `<div class="invoice-item-parts">Parts: ${work.parts}</div>` : ''}
+        <div class="invoice-item-breakdown">
+          <span class="labour">Labour: £${work.workPrice.toFixed(2)}</span>
+          ${work.partsPrice > 0 ? `<span class="parts">Parts: £${work.partsPrice.toFixed(2)}</span>` : ''}
+          <span>${workDate}</span>
+        </div>
+      </div>
+      <div class="invoice-item-total">
+        <div class="amount">£${work.total.toFixed(2)}</div>
+        <button type="button" class="invoice-item-delete" onclick="deleteWork(${client.id}, ${work.id})">Delete</button>
+      </div>
+    `;
+    itemsContainer.appendChild(div);
+  });
+}
+
+function renderPaymentsList(client) {
+  const paymentList = document.getElementById('paymentList');
+  paymentList.innerHTML = '';
+  
+  if (!client.payments || client.payments.length === 0) {
+    paymentList.innerHTML = '<p style="text-align: center; color: #999; font-size: 13px;">No payments recorded</p>';
+    return;
+  }
+  
+  client.payments.forEach(payment => {
+    const div = document.createElement('div');
+    div.className = 'payment-item';
+    const payDate = new Date(payment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    div.innerHTML = `
+      <span class="date">${payDate}</span>
+      <span class="amount">✓ £${payment.amount.toFixed(2)}</span>
+    `;
+    paymentList.appendChild(div);
+  });
 }
 
 function renderClientDetails(clientId) {
@@ -1056,70 +1145,35 @@ function renderClientDetails(clientId) {
   if (!client) return;
   
   clientModalTitle.textContent = `${client.name} - ${client.car}`;
-  renderWorkEntriesList(client);
+  renderInvoiceItems(client);
   updatePaymentDisplay(client);
 }
 
 function renderWorkEntriesList(client) {
+  const workList = document.getElementById('workList');
   workList.innerHTML = '';
   if (!client.works || client.works.length === 0) {
     workList.innerHTML = '<div class="empty">No work recorded.</div>';
     return;
   }
   
-  client.works.forEach(work => {
-    const div = document.createElement('div');
-    div.className = 'work-item';
-    const workDate = new Date(work.date).toLocaleDateString('ro-RO');
-    div.innerHTML = `
-      <div class="work-item-header">
-        <div class="desc">${work.desc}</div>
-        <button type="button" class="delete" onclick="deleteWork(${client.id}, ${work.id})">Sterge</button>
-      </div>
-      <div class="work-item-details">
-        <div><strong>Piese:</strong> ${work.parts || 'N/A'}</div>
-        <div style="margin-top: 6px;">
-          <div><strong>Data:</strong> ${workDate}</div>
-        </div>
-        <div class="cost">
-          <div class="cost-row">
-            <span>Lucru:</span>
-            <span>£${work.workPrice.toFixed(2)}</span>
-          </div>
-          <div class="cost-row">
-            <span>Piese:</span>
-            <span>£${work.partsPrice.toFixed(2)}</span>
-          </div>
-          <div class="cost-row" style="border-top: 1px solid rgba(0,0,0,0.1); padding-top: 6px; margin-top: 6px;">
-            <span class="total">Total:</span>
-            <span class="total">£${work.total.toFixed(2)}</span>
-          </div>
-        </div>
-      </div>
-    `;
-    workList.appendChild(div);
-  });
+  renderInvoiceItems(client);
 }
 
 function updatePaymentDisplay(client) {
-  const paid = client.payments.reduce((sum, p) => sum + p.amount, 0);
-  const remaining = Math.max(0, client.totalAmount - paid);
-  totalWork.textContent = '£' + client.totalAmount.toFixed(2);
-  totalPaid.textContent = '£' + paid.toFixed(2);
-  remainingWork.textContent = '£' + remaining.toFixed(2);
+  const totalWork = client.works?.reduce((sum, w) => sum + w.total, 0) || 0;
+  const totalPaid = client.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
+  const totalDue = Math.max(0, totalWork - totalPaid);
   
-  paymentList.innerHTML = '';
-  if (!client.payments || client.payments.length === 0) {
-    paymentList.innerHTML = '<div style="color: var(--muted); font-size: 12px; text-align: center;">No payments recorded.</div>';
-  } else {
-    client.payments.forEach(payment => {
-      const payDate = new Date(payment.date).toLocaleDateString('ro-RO');
-      const div = document.createElement('div');
-      div.className = 'payment-item';
-      div.innerHTML = `<span class="date">${payDate}</span><span class="amount">£${payment.amount.toFixed(2)}</span>`;
-      paymentList.appendChild(div);
-    });
-  }
+  const subtotalElem = document.getElementById('subtotalWork');
+  const paidElem = document.getElementById('paidAmount');
+  const dueElem = document.getElementById('totalDueInvoice');
+  
+  if (subtotalElem) subtotalElem.textContent = `£${totalWork.toFixed(2)}`;
+  if (paidElem) paidElem.textContent = `£${totalPaid.toFixed(2)}`;
+  if (dueElem) dueElem.textContent = `£${totalDue.toFixed(2)}`;
+  
+  renderPaymentsList(client);
 }
 
 // ============================================================================
