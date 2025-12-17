@@ -332,6 +332,115 @@
   .toast-text {
     font-size: 12px;
   }
+
+  /* Generic toolbar and filter styling for all tabs */
+  .clients-toolbar,
+  .loyal-filters,
+  .filter-controls,
+  [class*="toolbar"],
+  [class*="filters"] {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  /* Filter group - full width */
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .filter-group label {
+    font-size: 11px;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .filter-group select,
+  .filter-group input {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 11px;
+    border-radius: 8px;
+  }
+
+  /* Status pills/buttons - vertical stack or 2-col grid */
+  .status-pills,
+  .client-status-filter,
+  .balance-status-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .status-pills .pill,
+  .client-status-filter .pill,
+  .balance-status-filter .pill {
+    padding: 10px 12px;
+    font-size: 11px;
+    width: 100%;
+    text-align: center;
+    border-radius: 8px;
+  }
+
+  /* Sort and search in mobile - full width */
+  .search-sort-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .search-sort-group input,
+  .search-sort-group select {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 11px;
+    border-radius: 8px;
+  }
+
+  /* Client cards grid - more cards per row on mobile */
+  .clients-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .loyal-clients-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Stats display - stack vertically */
+  .loyal-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .loyal-stats .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: rgba(255, 149, 80, 0.08);
+    border: 1px solid rgba(255, 149, 80, 0.2);
+    border-radius: 8px;
+  }
+
+  .loyal-stats .stat-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .loyal-stats .stat-value {
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .loyal-stats .stat-label {
+    font-size: 10px;
+    margin: 0;
+  }
 }
 
 /* Mobile Landscape (480px - 376px) */
