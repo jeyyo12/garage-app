@@ -114,6 +114,86 @@
     order: 4;
   }
 
+  /* Stock toolbar - filters organized vertically */
+  .stock-toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  /* Filters section - full width buttons stacked */
+  .stock-toolbar .filters {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .stock-toolbar .filters .pill {
+    padding: 10px 12px;
+    font-size: 11px;
+    width: 100%;
+    text-align: center;
+    border-radius: 8px;
+  }
+
+  /* Categories section - 2 column grid */
+  .stock-toolbar .categories {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .stock-toolbar .categories .pill {
+    padding: 8px 10px;
+    font-size: 10px;
+    text-align: center;
+    border-radius: 8px;
+  }
+
+  /* Sort section - full width */
+  .stock-toolbar .sort {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .stock-toolbar .sort label {
+    font-size: 11px;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .stock-toolbar .sort select {
+    width: 100%;
+    padding: 10px 10px;
+    font-size: 11px;
+    border-radius: 8px;
+  }
+
+  /* Reset filters button - full width */
+  #resetFiltersBtn {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 11px;
+    margin-bottom: 10px;
+  }
+
+  /* Stock summary - full width and readable */
+  .stock-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .stock-summary .chip {
+    padding: 10px 12px;
+    font-size: 11px;
+    width: 100%;
+    display: block;
+  }
+
   /* Grid & Cards */
   #grid {
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
