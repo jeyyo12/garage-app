@@ -1107,12 +1107,49 @@ function markClientAsPaid(clientId) {
   const clients = loadClients();
   const client = clients.find(c => c.id === clientId);
   if (!client) return;
+  
+  // Calculate total work amount from all vehicles
+  let totalWorkAmount = 0;
+  if (client.vehicles && client.vehicles.length > 0) {
+    client.vehicles.forEach(vehicle => {
+      if (vehicle.work && vehicle.work.length > 0) {
+        vehicle.work.forEach(work => {
+          totalWorkAmount += work.amount || 0;
+        });
+      }
+    });
+  }
+  
+  // Add payment for the total work amount
+  if (totalWorkAmount > 0) {
+    client.vehicles.forEach(vehicle => {
+      if (!vehicle.payments) {
+        vehicle.payments = [];
+      }
+      // Add single payment to first vehicle with work, or create on first vehicle
+      if (vehicle.work && vehicle.work.length > 0) {
+        vehicle.payments.push({
+          amount: totalWorkAmount,
+          date: new Date().toISOString(),
+          notes: 'Full Payment'
+        });
+        totalWorkAmount = 0; // Mark as paid so we don't add it again
+      }
+    });
+  }
+  
+  // Mark client as paid (add fullyPaid flag)
+  client.fullyPaid = true;
   client.paidDate = new Date().toISOString();
-  const paid = loadPaidClients();
-  paid.unshift(client);
-  savePaidClients(paid);
-  clients.splice(clients.indexOf(client), 1);
+  
+  // Save client back to database (don't delete)
   saveClients(clients);
+  
+  // Also add to paid clients history
+  const paid = loadPaidClients();
+  paid.unshift({...client});
+  savePaidClients(paid);
+  
   renderClientsList();
   clientModal.classList.remove('active');
 }
@@ -1165,11 +1202,18 @@ function renderClientsList(searchTerm = '') {
       const card = document.createElement('div');
       card.className = 'client-card';
       
+      const fullyPaidBadge = client.fullyPaid ? '<span class="status-badge" style="background: #27ae60; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">✓ PAID</span>' : '';
+      
       card.innerHTML = `
         <div class="client-info">
-          <h3>${client.name}</h3>
-          <p>${client.car || 'Car not specified'}</p>
-          <p>${client.phone || 'Phone not specified'}</p>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h3>${client.name}</h3>
+              <p>${client.car || 'Car not specified'}</p>
+              <p>${client.phone || 'Phone not specified'}</p>
+            </div>
+            ${fullyPaidBadge}
+          </div>
         </div>
         <div class="client-card-details">
           <div class="client-card-stat">
