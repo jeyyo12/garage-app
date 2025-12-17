@@ -10,16 +10,27 @@
   --shadow: 0 18px 60px rgba(0, 0, 0, 0.08);
 }
 
-* { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
+* { 
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: rgba(255, 149, 80, 0.2);
+}
+
+html { 
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
 
 body {
   margin: 0;
   min-height: 100vh;
+  min-height: -webkit-fill-available;
   background: radial-gradient(circle at 20% 20%, rgba(255, 149, 80, 0.18), transparent 32%),
     radial-gradient(circle at 78% 18%, rgba(196, 95, 40, 0.12), transparent 28%),
     radial-gradient(circle at 50% 80%, rgba(0, 0, 0, 0.04), transparent 38%),
     var(--bg);
+  background-attachment: fixed;
   color: var(--text);
   font-family: 'Space Grotesk', sans-serif;
   display: flex;
@@ -28,6 +39,8 @@ body {
   padding: 32px;
   padding-left: max(12px, calc(32px + env(safe-area-inset-left, 0px)));
   padding-right: max(12px, calc(32px + env(safe-area-inset-right, 0px)));
+  padding-bottom: max(32px, calc(32px + env(safe-area-inset-bottom, 0px)));
+  overflow-x: hidden;
 }
 
 .shell {
@@ -3388,5 +3401,588 @@ button.secondary:hover {
     right: 20px;
     left: 20px;
     padding: 14px 20px;
+  }
+}
+
+/* ============================================================================
+   COMPREHENSIVE RESPONSIVE DESIGN
+   ============================================================================ */
+
+/* Tablet Landscape (1024px - 769px) */
+@media (max-width: 1024px) and (min-width: 769px) {
+  body {
+    padding: 24px;
+  }
+
+  .shell {
+    padding: 20px;
+    border-radius: 20px;
+  }
+
+  .nav-tab {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  #grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+  }
+
+  .card {
+    border-radius: 14px;
+  }
+
+  /* Client cards in 2 columns on tablet */
+  #clientsList {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  /* Loyal clients in 2 columns */
+  #loyalClientsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .modal {
+    max-width: 680px;
+    padding: 24px;
+  }
+
+  .large-modal {
+    max-width: 750px;
+  }
+}
+
+/* Tablet Portrait (768px - 481px) */
+@media (max-width: 768px) and (min-width: 481px) {
+  body {
+    padding: 20px;
+  }
+
+  .shell {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .nav-tabs {
+    gap: 4px;
+    padding: 0 12px;
+  }
+
+  .nav-tab {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .nav-tab .icon {
+    display: inline;
+    font-size: 14px;
+  }
+
+  #grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 14px;
+  }
+
+  /* Client cards full width on tablet portrait */
+  #clientsList {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .client-card {
+    flex-direction: row;
+    padding: 16px;
+  }
+
+  .client-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .client-card-details {
+    flex: 1;
+    margin-top: 0;
+    margin-left: 16px;
+  }
+
+  /* Loyal clients single column */
+  #loyalClientsGrid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .loyal-client-card {
+    border-radius: 14px;
+  }
+
+  .loyal-client-card-header {
+    flex-direction: row;
+    padding: 16px;
+  }
+
+  .loyal-client-photo {
+    width: 60px;
+    height: 60px;
+    font-size: 20px;
+  }
+
+  .loyal-client-spent {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+  }
+
+  .spent-label {
+    font-size: 11px;
+    margin-bottom: 0;
+  }
+
+  .spent-amount {
+    font-size: 22px;
+  }
+
+  .modal {
+    max-width: 90%;
+    padding: 22px;
+    margin: 20px;
+  }
+
+  .large-modal {
+    max-width: 92%;
+  }
+
+  .invoice-viewer-modal {
+    max-width: 90%;
+  }
+}
+
+/* Mobile Landscape (480px - 376px) */
+@media (max-width: 480px) and (min-width: 376px) and (orientation: landscape) {
+  body {
+    padding: 12px;
+  }
+
+  .shell {
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .nav-tabs {
+    gap: 2px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .nav-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-tab {
+    padding: 8px 10px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  #grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 10px;
+  }
+
+  .card {
+    border-radius: 12px;
+  }
+
+  .photo {
+    height: 130px;
+  }
+
+  .info {
+    padding: 10px;
+  }
+
+  .info h3 {
+    font-size: 13px;
+  }
+
+  .info p {
+    font-size: 11px;
+  }
+
+  .modal {
+    max-width: 95%;
+    padding: 16px;
+    margin: 10px;
+    border-radius: 14px;
+  }
+}
+
+/* Mobile Portrait Small (≤ 375px) */
+@media (max-width: 375px) {
+  body {
+    padding: 10px;
+  }
+
+  .shell {
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .nav-tabs {
+    gap: 0;
+    margin-left: -12px;
+    margin-right: -12px;
+    padding: 0 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .nav-tab {
+    padding: 10px 8px;
+    font-size: 10px;
+    min-width: fit-content;
+  }
+
+  header h1 {
+    font-size: 20px;
+  }
+
+  .stats {
+    gap: 4px;
+  }
+
+  .stat {
+    padding: 8px 10px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+  }
+
+  .stat-value {
+    font-size: 18px;
+  }
+
+  #grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+
+  .card {
+    border-radius: 10px;
+  }
+
+  .photo {
+    height: 140px;
+  }
+
+  .info {
+    padding: 10px;
+  }
+
+  .info h3 {
+    font-size: 13px;
+  }
+
+  .info p {
+    font-size: 10px;
+  }
+
+  .product-info-below {
+    gap: 4px;
+    padding: 6px 8px;
+  }
+
+  .product-info-below .price,
+  .product-info-below .used,
+  .product-info-below .availability {
+    font-size: 10px;
+  }
+
+  /* Client cards on small mobile */
+  .client-card {
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .client-card h3 {
+    font-size: 15px;
+  }
+
+  .client-card p {
+    font-size: 12px;
+  }
+
+  .client-card-stat-label {
+    font-size: 10px;
+  }
+
+  .client-card-stat-value {
+    font-size: 16px;
+  }
+
+  .client-card-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  /* Loyal clients on small mobile */
+  .loyal-client-card {
+    border-radius: 12px;
+  }
+
+  .loyal-client-photo {
+    width: 50px;
+    height: 50px;
+    font-size: 18px;
+  }
+
+  .loyal-client-main-info h3 {
+    font-size: 15px;
+  }
+
+  .client-phone {
+    font-size: 11px;
+  }
+
+  .info-badge {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+
+  .spent-label {
+    font-size: 9px;
+  }
+
+  .spent-amount {
+    font-size: 18px;
+  }
+
+  .loyal-vehicle-item {
+    padding: 10px;
+    font-size: 12px;
+  }
+
+  .vehicle-icon {
+    font-size: 16px;
+  }
+
+  /* Modal adjustments for small screens */
+  .modal {
+    max-width: 100%;
+    max-height: 90vh;
+    padding: 14px;
+    margin: 10px;
+    border-radius: 12px;
+  }
+
+  .modal h2 {
+    font-size: 18px;
+  }
+
+  .form-group label {
+    font-size: 12px;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    font-size: 13px;
+    padding: 10px;
+  }
+
+  .btn,
+  button[type="submit"] {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  /* Invoice viewer on small mobile */
+  .invoice-viewer-modal {
+    max-width: 100%;
+    padding: 14px;
+  }
+
+  .invoice-viewer-header h1 {
+    font-size: 20px;
+  }
+
+  .invoice-viewer-header h2 {
+    font-size: 16px;
+  }
+
+  .invoice-table {
+    font-size: 11px;
+  }
+
+  .invoice-table th,
+  .invoice-table td {
+    padding: 8px 6px;
+  }
+
+  /* Stats cards */
+  .loyal-stats {
+    gap: 8px;
+  }
+
+  .loyal-stat-item {
+    padding: 10px;
+  }
+
+  .loyal-stat-label {
+    font-size: 10px;
+  }
+
+  .loyal-stat-value {
+    font-size: 20px;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .nav-tab {
+    min-height: 44px;
+    /* Minimum touch target size */
+  }
+
+  button,
+  .btn,
+  .pill,
+  .category {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .card {
+    cursor: default;
+  }
+
+  .photo {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Improve tap targets */
+  .client-card-btn,
+  .btn-view-loyal,
+  .btn-delete-loyal,
+  .btn-delete-vehicle {
+    padding: 12px 16px;
+    min-height: 44px;
+  }
+
+  /* Remove hover effects on touch devices */
+  .card:hover .border-anim {
+    background: conic-gradient(from 0deg, var(--accent), transparent 90deg, var(--accent) 180deg, transparent 270deg, var(--accent));
+  }
+
+  .photo:hover {
+    transform: none;
+  }
+}
+
+/* High resolution displays */
+@media (-webkit-min-device-pixel-ratio: 2),
+       (min-resolution: 192dpi) {
+  .card img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+
+  .loyal-client-photo img {
+    image-rendering: -webkit-optimize-contrast;
+  }
+}
+
+/* Print styles */
+@media print {
+  body {
+    background: white;
+    padding: 0;
+  }
+
+  .shell {
+    box-shadow: none;
+    border: none;
+    background: white;
+  }
+
+  .nav-tabs,
+  .controls,
+  .mobile-stats,
+  .btn,
+  button,
+  .close-modal,
+  .overlay {
+    display: none !important;
+  }
+
+  .invoice-viewer-modal,
+  .modal {
+    position: static;
+    max-width: 100%;
+    box-shadow: none;
+    background: white;
+  }
+
+  .invoice-viewer-footer {
+    display: none;
+  }
+
+  .invoice-table {
+    page-break-inside: avoid;
+  }
+}
+
+/* Accessibility - Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1a1412;
+    --panel: #2a2220;
+    --text: #f0e6dc;
+    --muted: #a08970;
+  }
+
+  body {
+    background: radial-gradient(circle at 20% 20%, rgba(255, 149, 80, 0.1), transparent 32%),
+      radial-gradient(circle at 78% 18%, rgba(196, 95, 40, 0.08), transparent 28%),
+      var(--bg);
+  }
+
+  .shell {
+    background: linear-gradient(145deg, rgba(42, 34, 32, 0.95), rgba(42, 34, 32, 0.85));
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .card {
+    background: var(--panel);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .modal {
+    background: var(--panel);
+  }
+
+  input,
+  textarea,
+  select {
+    background: rgba(0, 0, 0, 0.3);
+    color: var(--text);
+    border-color: rgba(255, 255, 255, 0.1);
   }
 }
