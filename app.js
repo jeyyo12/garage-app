@@ -1885,15 +1885,27 @@ function renderLoyalClientsList() {
   const container = document.getElementById('loyalClientsGrid');
   if (!container) return;
 
+  // Calculate total outstanding
+  let totalOutstanding = 0;
+  loyalClients.forEach(client => {
+    client.vehicles.forEach(vehicle => {
+      const totalWork = (vehicle.works || []).reduce((sum, w) => sum + w.total, 0);
+      const totalPaid = (vehicle.payments || []).reduce((sum, p) => sum + p.amount, 0);
+      totalOutstanding += (totalWork - totalPaid);
+    });
+  });
+
   // Update stats
   const totalClients = loyalClients.length;
   const totalVehicles = loyalClients.reduce((sum, c) => sum + c.vehicles.length, 0);
   
   const countEl = document.getElementById('loyalClientsCount');
   const vehiclesEl = document.getElementById('totalVehiclesCount');
+  const outstandingEl = document.getElementById('totalOutstanding');
   
   if (countEl) countEl.textContent = totalClients;
   if (vehiclesEl) vehiclesEl.textContent = totalVehicles;
+  if (outstandingEl) outstandingEl.textContent = `£${totalOutstanding.toFixed(2)}`;
 
   if (loyalClients.length === 0) {
     container.innerHTML = '<p style="text-align:center;color:#999;padding:40px;">No loyal clients yet. Add your first one above!</p>';
@@ -1902,11 +1914,53 @@ function renderLoyalClientsList() {
 
   // Filter by search
   const searchTerm = document.getElementById('loyalSearch')?.value.toLowerCase() || '';
-  const filtered = loyalClients.filter(c => 
-    c.name.toLowerCase().includes(searchTerm) ||
-    c.clientNumber.toLowerCase().includes(searchTerm) ||
-    c.phone.toLowerCase().includes(searchTerm)
-  );
+  const filterValue = document.getElementById('loyalFilterSelect')?.value || 'all';
+  const sortValue = document.getElementById('loyalSortSelect')?.value || 'name-asc';
+  
+  let filtered = loyalClients.filter(c => {
+    // Search filter
+    const matchesSearch = c.name.toLowerCase().includes(searchTerm) ||
+                         c.clientNumber.toLowerCase().includes(searchTerm) ||
+                         c.phone.toLowerCase().includes(searchTerm);
+    if (!matchesSearch) return false;
+
+    // Status filter
+    if (filterValue === 'all') return true;
+    
+    const totalWork = c.vehicles.reduce((sum, v) => 
+      sum + (v.works || []).reduce((s, w) => s + w.total, 0), 0);
+    const totalPaid = c.vehicles.reduce((sum, v) => 
+      sum + (v.payments || []).reduce((s, p) => s + p.amount, 0), 0);
+    const balance = totalWork - totalPaid;
+
+    if (filterValue === 'has-balance') return balance > 0;
+    if (filterValue === 'paid') return totalWork > 0 && balance <= 0;
+    if (filterValue === 'has-vehicles') return c.vehicles.length > 0;
+    
+    return true;
+  });
+
+  // Sort
+  filtered.sort((a, b) => {
+    if (sortValue === 'name-asc') return a.name.localeCompare(b.name);
+    if (sortValue === 'name-desc') return b.name.localeCompare(a.name);
+    if (sortValue === 'vehicles-desc') return b.vehicles.length - a.vehicles.length;
+    if (sortValue === 'recent') return new Date(b.createdAt) - new Date(a.createdAt);
+    if (sortValue === 'balance-desc') {
+      const balanceA = a.vehicles.reduce((sum, v) => {
+        const work = (v.works || []).reduce((s, w) => s + w.total, 0);
+        const paid = (v.payments || []).reduce((s, p) => s + p.amount, 0);
+        return sum + (work - paid);
+      }, 0);
+      const balanceB = b.vehicles.reduce((sum, v) => {
+        const work = (v.works || []).reduce((s, w) => s + w.total, 0);
+        const paid = (v.payments || []).reduce((s, p) => s + p.amount, 0);
+        return sum + (work - paid);
+      }, 0);
+      return balanceB - balanceA;
+    }
+    return 0;
+  });
 
   if (filtered.length === 0) {
     container.innerHTML = '<p style="text-align:center;color:#999;padding:40px;">No matching clients found.</p>';
@@ -1919,14 +1973,36 @@ function renderLoyalClientsList() {
       ? `<img src="${client.photo}" alt="${client.name}" />`
       : initials;
 
+    // Calculate client balance
+    const totalWork = client.vehicles.reduce((sum, v) => 
+      sum + (v.works || []).reduce((s, w) => s + w.total, 0), 0);
+    const totalPaid = client.vehicles.reduce((sum, v) => 
+      sum + (v.payments || []).reduce((s, p) => s + p.amount, 0), 0);
+    const balance = totalWork - totalPaid;
+
     const vehiclesHtml = client.vehicles.length > 0
-      ? client.vehicles.map(v => `
+      ? client.vehicles.map(v => {
+          const vWork = (v.works || []).reduce((sum, w) => sum + w.total, 0);
+          const vPaid = (v.payments || []).reduce((sum, p) => sum + p.amount, 0);
+          const vBalance = vWork - vPaid;
+          
+          return `
           <div class="loyal-vehicle-item">
             <span class="vehicle-icon">🚐</span>
             <span class="vehicle-name">${v.car}</span>
+            ${vBalance > 0 ? `<span style="color:#d32f2f;font-weight:700;font-size:12px;margin-left:auto;">£${vBalance.toFixed(2)} due</span>` : ''}
           </div>
-        `).join('')
+        `;
+        }).join('')
       : '<p style="color:#999;font-size:13px;">No vehicles added yet</p>';
+
+    const badgesHtml = `
+      <div class="client-info-badges">
+        <span class="info-badge">🚐 ${client.vehicles.length} Vehicle${client.vehicles.length !== 1 ? 's' : ''}</span>
+        ${balance > 0 ? `<span class="info-badge balance-due">💰 £${balance.toFixed(2)} Due</span>` : ''}
+        ${totalWork > 0 && balance <= 0 ? `<span class="info-badge paid">✓ Paid</span>` : ''}
+      </div>
+    `;
 
     return `
       <div class="loyal-client-card">
@@ -1936,6 +2012,7 @@ function renderLoyalClientsList() {
             <h3>${client.name}</h3>
             <div class="client-number">Client #${client.clientNumber}</div>
             ${client.phone ? `<div class="client-phone">📞 ${client.phone}</div>` : ''}
+            ${badgesHtml}
           </div>
         </div>
         <div class="loyal-vehicles">
@@ -1943,8 +2020,8 @@ function renderLoyalClientsList() {
           ${vehiclesHtml}
         </div>
         <div class="loyal-client-actions">
-          <button class="btn-view-loyal" onclick="openLoyalClientModal('${client.id}')">View Details</button>
-          <button class="btn-delete-loyal" onclick="deleteLoyalClient('${client.id}')">Delete</button>
+          <button class="btn-view-loyal" onclick="openLoyalClientModal('${client.id}')">👁️ View Details</button>
+          <button class="btn-delete-loyal" onclick="deleteLoyalClient('${client.id}')">🗑️ Delete</button>
         </div>
       </div>
     `;
@@ -2202,6 +2279,14 @@ document.getElementById('closeLoyalClientModal')?.addEventListener('click', clos
 document.getElementById('loyalSearch')?.addEventListener('input', debounce(() => {
   renderLoyalClientsList();
 }, 300));
+
+document.getElementById('loyalSortSelect')?.addEventListener('change', () => {
+  renderLoyalClientsList();
+});
+
+document.getElementById('loyalFilterSelect')?.addEventListener('change', () => {
+  renderLoyalClientsList();
+});
 
 // Vehicle Work Form
 document.getElementById('addVehicleWorkForm')?.addEventListener('submit', (e) => {

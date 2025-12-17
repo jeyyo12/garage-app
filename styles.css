@@ -2560,17 +2560,37 @@ button.secondary:hover {
 
 .loyal-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 20px;
   margin-bottom: 30px;
 }
 
 .loyal-stats .stat-item {
-  background: transparent;
+  background: white;
   padding: 24px;
   border-radius: 12px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 20px;
   border: 3px solid #f0f0f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.loyal-stats .stat-icon {
+  font-size: 42px;
+  width: 70px;
+  height: 70px;
+  background: linear-gradient(135deg, #fff5f0 0%, #ffe8dc 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.loyal-stats .stat-content {
+  flex: 1;
+  text-align: left;
 }
 
 .loyal-stats .stat-value {
@@ -2609,6 +2629,50 @@ button.secondary:hover {
   box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15);
 }
 
+.loyal-filters {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  border: 2px solid #f0f0f0;
+  flex-wrap: wrap;
+}
+
+.loyal-filters .filter-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 250px;
+}
+
+.loyal-filters label {
+  font-weight: 700;
+  color: #1a1a1a;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.loyal-filters select {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.loyal-filters select:focus {
+  border-color: #ff6b35;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
 .loyal-search-section {
   margin-bottom: 24px;
 }
@@ -2637,10 +2701,11 @@ button.secondary:hover {
   background: white;
   border: 2px solid #f0f0f0;
   border-radius: 16px;
-  padding: 24px;
+  padding: 0;
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
+  overflow: hidden;
 }
 
 .loyal-client-card:hover {
@@ -2652,10 +2717,10 @@ button.secondary:hover {
 .loyal-client-card-header {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 16px;
-  padding-bottom: 16px;
-  border-bottom: 2px solid #f5f5f5;
+  gap: 20px;
+  padding: 24px;
+  background: linear-gradient(135deg, #fff5f0 0%, #ffffff 100%);
+  border-bottom: 3px solid #ffe8dc;
 }
 
 .loyal-client-photo {
@@ -2681,9 +2746,13 @@ button.secondary:hover {
   object-fit: cover;
 }
 
+.loyal-client-main-info {
+  flex: 1;
+}
+
 .loyal-client-main-info h3 {
-  font-size: 20px;
-  margin: 0 0 4px 0;
+  font-size: 22px;
+  margin: 0 0 8px 0;
   color: #1a1a1a;
   font-weight: 700;
 }
@@ -2700,29 +2769,77 @@ button.secondary:hover {
   margin-top: 4px;
 }
 
-.loyal-vehicles {
+.client-info-badges {
+  display: flex;
+  gap: 8px;
   margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.info-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #fff5f0;
+  border: 2px solid #ffe8dc;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.info-badge.balance-due {
+  background: #fff0f0;
+  border-color: #ffd0d0;
+  color: #d32f2f;
+}
+
+.info-badge.paid {
+  background: #f0fff4;
+  border-color: #d0f0d8;
+  color: #27ae60;
+}
+
+.loyal-vehicles {
+  padding: 20px 24px;
+  background: #fafafa;
 }
 
 .loyal-vehicles h4 {
-  font-size: 14px;
+  font-size: 13px;
   color: #666;
-  margin-bottom: 8px;
+  margin: 0 0 12px 0;
   text-transform: uppercase;
   letter-spacing: 1px;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.loyal-vehicles h4::before {
+  content: '🚐';
+  font-size: 16px;
 }
 
 .loyal-vehicle-item {
-  background: #fff5f0;
-  padding: 10px 14px;
+  background: white;
+  padding: 12px 16px;
   border-radius: 8px;
   margin-bottom: 8px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   font-size: 14px;
+  border: 2px solid #e0e0e0;
   border-left: 4px solid #ff6b35;
+  transition: all 0.2s ease;
+}
+
+.loyal-vehicle-item:hover {
+  border-color: #ff6b35;
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.1);
 }
 
 .loyal-vehicle-item .vehicle-icon {
@@ -2749,19 +2866,25 @@ button.secondary:hover {
 
 .loyal-client-actions {
   display: flex;
-  gap: 8px;
-  margin-top: 16px;
+  gap: 12px;
+  padding: 20px 24px;
+  background: white;
+  border-top: 2px solid #f0f0f0;
 }
 
 .loyal-client-actions button {
   flex: 1;
-  padding: 10px;
+  padding: 12px 20px;
   border: none;
   border-radius: 8px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .btn-view-loyal {
@@ -2941,6 +3064,24 @@ button.secondary:hover {
 
   .loyal-stats {
     grid-template-columns: 1fr;
+  }
+
+  .loyal-stats .stat-item {
+    padding: 20px;
+  }
+
+  .loyal-stats .stat-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 32px;
+  }
+
+  .loyal-filters {
+    flex-direction: column;
+  }
+
+  .loyal-filters .filter-group {
+    width: 100%;
   }
 }
 

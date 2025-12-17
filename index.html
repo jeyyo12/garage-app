@@ -159,12 +159,48 @@
         <!-- Stats Header -->
         <div class="loyal-stats">
           <div class="stat-item">
-            <div class="stat-value" id="loyalClientsCount">0</div>
-            <div class="stat-label">Loyal Clients</div>
+            <div class="stat-icon">👥</div>
+            <div class="stat-content">
+              <div class="stat-value" id="loyalClientsCount">0</div>
+              <div class="stat-label">Loyal Clients</div>
+            </div>
           </div>
           <div class="stat-item">
-            <div class="stat-value" id="totalVehiclesCount">0</div>
-            <div class="stat-label">Total Vehicles</div>
+            <div class="stat-icon">🚐</div>
+            <div class="stat-content">
+              <div class="stat-value" id="totalVehiclesCount">0</div>
+              <div class="stat-label">Total Vehicles</div>
+            </div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-icon">💰</div>
+            <div class="stat-content">
+              <div class="stat-value" id="totalOutstanding">£0</div>
+              <div class="stat-label">Total Outstanding</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Controls -->
+        <div class="loyal-filters">
+          <div class="filter-group">
+            <label>Sort by:</label>
+            <select id="loyalSortSelect">
+              <option value="name-asc">Name (A-Z)</option>
+              <option value="name-desc">Name (Z-A)</option>
+              <option value="vehicles-desc">Most Vehicles</option>
+              <option value="balance-desc">Highest Balance</option>
+              <option value="recent">Recently Added</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Filter by:</label>
+            <select id="loyalFilterSelect">
+              <option value="all">All Clients</option>
+              <option value="has-balance">Has Outstanding Balance</option>
+              <option value="paid">Fully Paid</option>
+              <option value="has-vehicles">Has Vehicles</option>
+            </select>
           </div>
         </div>
 
