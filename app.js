@@ -1613,6 +1613,38 @@ if (invoiceViewer) {
   });
 }
 
+// Vehicle Invoice Viewer Modal
+const vehicleInvoiceViewer = document.getElementById('vehicleInvoiceViewer');
+const closeVehicleInvoiceViewer = document.getElementById('closeVehicleInvoiceViewer');
+const closeVehicleInvoiceViewerBtn = document.getElementById('closeVehicleInvoiceViewerBtn');
+const printVehicleInvoiceBtn = document.getElementById('printVehicleInvoiceBtn');
+
+function closeVehicleInvoiceViewerModal() {
+  if (vehicleInvoiceViewer) {
+    vehicleInvoiceViewer.classList.remove('active');
+  }
+}
+
+if (closeVehicleInvoiceViewer) {
+  closeVehicleInvoiceViewer.addEventListener('click', closeVehicleInvoiceViewerModal);
+}
+
+if (closeVehicleInvoiceViewerBtn) {
+  closeVehicleInvoiceViewerBtn.addEventListener('click', closeVehicleInvoiceViewerModal);
+}
+
+if (printVehicleInvoiceBtn) {
+  printVehicleInvoiceBtn.addEventListener('click', () => {
+    window.print();
+  });
+}
+
+if (vehicleInvoiceViewer) {
+  vehicleInvoiceViewer.addEventListener('click', (e) => {
+    if (e.target === vehicleInvoiceViewer) closeVehicleInvoiceViewerModal();
+  });
+}
+
 if (workForm) {
   workForm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -1987,10 +2019,11 @@ function renderLoyalClientsList() {
           const vBalance = vWork - vPaid;
           
           return `
-          <div class="loyal-vehicle-item">
+          <div class="loyal-vehicle-item" onclick="openVehicleWorkModal('${client.id}', '${v.id}')" style="cursor:pointer;">
             <span class="vehicle-icon">🚐</span>
             <span class="vehicle-name">${v.car}</span>
             ${vBalance > 0 ? `<span style="color:#d32f2f;font-weight:700;font-size:12px;margin-left:auto;">£${vBalance.toFixed(2)} due</span>` : ''}
+            <button class="btn-vehicle-invoice" onclick="event.stopPropagation(); openVehicleInvoice('${client.id}', '${v.id}')" style="margin-left:8px;padding:4px 12px;font-size:12px;background:#ff6b35;color:white;border:none;border-radius:4px;cursor:pointer;">📋 Invoice</button>
           </div>
         `;
         }).join('')
@@ -2081,7 +2114,7 @@ function renderLoyalClientDetails(clientId) {
     const balance = totalWork - totalPaid;
 
     return `
-    <div class="loyal-vehicle-item">
+    <div class="loyal-vehicle-item" onclick="openVehicleWorkModal('${client.id}', '${vehicle.id}')" style="cursor:pointer;">
       <div class="vehicle-info-block">
         <div class="vehicle-name">🚐 ${vehicle.car}</div>
         ${vehicle.notes ? `<div class="loyal-vehicle-notes">${vehicle.notes}</div>` : ''}
@@ -2094,8 +2127,9 @@ function renderLoyalClientDetails(clientId) {
           </div>
         ` : ''}
       </div>
-      <div style="display:flex;gap:8px;">
+      <div style="display:flex;gap:8px;" onclick="event.stopPropagation();">
         <button class="btn-view-loyal" onclick="openVehicleWorkModal('${client.id}', '${vehicle.id}')" style="padding:8px 16px;font-size:13px;">Manage Work</button>
+        <button class="btn-view-loyal" onclick="openVehicleInvoice('${client.id}', '${vehicle.id}')" style="padding:8px 16px;font-size:13px;background:#ff6b35;">📋 Invoice</button>
         <button class="btn-delete-vehicle" onclick="deleteVehicle('${client.id}', '${vehicle.id}')">Delete</button>
       </div>
     </div>
@@ -2185,6 +2219,99 @@ function renderVehicleWorkDetails(clientId, vehicleId) {
   if (totalWorkEl) totalWorkEl.textContent = `£${totalWork.toFixed(2)}`;
   if (totalPaidEl) totalPaidEl.textContent = `£${totalPaid.toFixed(2)}`;
   if (balanceEl) balanceEl.textContent = `£${balance.toFixed(2)}`;
+}
+
+function openVehicleInvoice(clientId, vehicleId) {
+  const client = loyalClients.find(c => c.id === clientId);
+  if (!client) return;
+  
+  const vehicle = client.vehicles.find(v => v.id === vehicleId);
+  if (!vehicle) return;
+  
+  renderVehicleInvoiceViewer(client, vehicle);
+  
+  const invoiceViewer = document.getElementById('vehicleInvoiceViewer');
+  if (invoiceViewer) {
+    invoiceViewer.classList.add('active');
+  }
+}
+
+function renderVehicleInvoiceViewer(client, vehicle) {
+  // Client info
+  document.getElementById('viewVehicleInvoiceClientName').textContent = client.name;
+  document.getElementById('viewVehicleInvoiceClientPhone').textContent = `📞 ${client.phone}`;
+  document.getElementById('viewVehicleInvoiceClientCar').textContent = `🚗 ${vehicle.car}`;
+  
+  // Date
+  const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  document.getElementById('vehicleInvoiceDate').textContent = `Invoice Date: ${today}`;
+  
+  // Calculate totals
+  const totalWork = (vehicle.works || []).reduce((sum, w) => sum + w.total, 0);
+  const totalPaid = (vehicle.payments || []).reduce((sum, p) => sum + p.amount, 0);
+  const totalDue = totalWork - totalPaid;
+  
+  // Status badge
+  const statusBadge = document.getElementById('viewVehicleInvoiceStatus');
+  if (totalWork === 0) {
+    statusBadge.textContent = 'NO WORK YET';
+    statusBadge.className = 'status-badge large pending';
+  } else if (totalDue <= 0) {
+    statusBadge.textContent = '✓ PAID';
+    statusBadge.className = 'status-badge large paid';
+  } else {
+    statusBadge.textContent = 'PENDING';
+    statusBadge.className = 'status-badge large pending';
+  }
+  
+  // Render work items in table
+  const itemsContainer = document.getElementById('viewVehicleInvoiceItems');
+  itemsContainer.innerHTML = '';
+  
+  if (!vehicle.works || vehicle.works.length === 0) {
+    itemsContainer.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999; padding: 24px;">No services recorded for this vehicle</td></tr>';
+  } else {
+    vehicle.works.forEach(work => {
+      const workDate = new Date(work.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${work.desc}</td>
+        <td>${work.parts || '-'}</td>
+        <td>£${work.workPrice.toFixed(2)}</td>
+        <td>£${work.partsPrice.toFixed(2)}</td>
+        <td style="font-weight: 700; color: var(--accent-2);">£${work.total.toFixed(2)}</td>
+      `;
+      itemsContainer.appendChild(row);
+    });
+  }
+  
+  // Totals
+  document.getElementById('viewVehicleSubtotalWork').textContent = `£${totalWork.toFixed(2)}`;
+  document.getElementById('viewVehiclePaidAmount').textContent = `£${totalPaid.toFixed(2)}`;
+  document.getElementById('viewVehicleTotalDueInvoice').textContent = `£${Math.max(0, totalDue).toFixed(2)}`;
+  
+  // Payment history
+  renderVehicleInvoiceViewerPayments(vehicle);
+}
+
+function renderVehicleInvoiceViewerPayments(vehicle) {
+  const paymentList = document.getElementById('viewVehiclePaymentList');
+  paymentList.innerHTML = '';
+  
+  if (!vehicle.payments || vehicle.payments.length === 0) {
+    paymentList.innerHTML = '<p style="text-align: center; color: #999; font-size: 13px; padding: 16px;">No payments recorded yet</p>';
+  } else {
+    vehicle.payments.forEach(payment => {
+      const payDate = new Date(payment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
+      const div = document.createElement('div');
+      div.className = 'payment-item';
+      div.innerHTML = `
+        <span class="date">${payDate}</span>
+        <span class="amount">✓ £${payment.amount.toFixed(2)}</span>
+      `;
+      paymentList.appendChild(div);
+    });
+  }
 }
 
 function showUndoNotification() {
@@ -2342,6 +2469,7 @@ window.openVehicleWorkModal = openVehicleWorkModal;
 window.closeVehicleWorkModal = closeVehicleWorkModal;
 window.deleteVehicleWork = deleteVehicleWork;
 window.undoLastDelete = undoLastDelete;
+window.openVehicleInvoice = openVehicleInvoice;
 
 // Initial render
 loadLoyalClients();

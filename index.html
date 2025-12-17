@@ -595,6 +595,79 @@
     </div>
   </div>
 
+  <!-- Vehicle Invoice Viewer Modal -->
+  <div class="overlay" id="vehicleInvoiceViewer">
+    <div class="modal invoice-viewer-modal">
+      <button class="close-modal" id="closeVehicleInvoiceViewer">✕</button>
+      
+      <div class="invoice-viewer-container">
+        <!-- Invoice Header -->
+        <div class="invoice-viewer-header">
+          <h1>Vehicle Invoice</h1>
+          <div class="invoice-viewer-client-info">
+            <h2 id="viewVehicleInvoiceClientName">Client Name</h2>
+            <p id="viewVehicleInvoiceClientPhone">📞 Phone</p>
+            <p id="viewVehicleInvoiceClientCar">🚗 Vehicle</p>
+            <p id="vehicleInvoiceDate" style="color: #666; font-size: 14px; margin-top: 8px;">Invoice Date: -</p>
+          </div>
+          <div class="invoice-viewer-status">
+            <span class="status-badge large pending" id="viewVehicleInvoiceStatus">PENDING</span>
+          </div>
+        </div>
+
+        <!-- Services Table -->
+        <div class="invoice-viewer-section">
+          <h3>Services & Parts</h3>
+          <table class="invoice-table">
+            <thead>
+              <tr>
+                <th>Service Description</th>
+                <th>Parts Used</th>
+                <th>Labour</th>
+                <th>Parts Cost</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody id="viewVehicleInvoiceItems">
+              <tr>
+                <td colspan="5" style="text-align: center; color: #999;">No services recorded</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Invoice Summary -->
+        <div class="invoice-viewer-section">
+          <div class="invoice-viewer-summary">
+            <div class="summary-row">
+              <span>Subtotal:</span>
+              <span id="viewVehicleSubtotalWork">£0.00</span>
+            </div>
+            <div class="summary-row">
+              <span>Paid:</span>
+              <span id="viewVehiclePaidAmount" class="paid">£0.00</span>
+            </div>
+            <div class="summary-row total">
+              <span>Total Due:</span>
+              <span id="viewVehicleTotalDueInvoice">£0.00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment History -->
+        <div class="invoice-viewer-section">
+          <h3>Payment History</h3>
+          <div id="viewVehiclePaymentList" class="payment-list"></div>
+        </div>
+      </div>
+
+      <div class="invoice-viewer-footer">
+        <button type="button" id="printVehicleInvoiceBtn" class="primary">🖨️ Print Invoice</button>
+        <button type="button" id="closeVehicleInvoiceViewerBtn" class="ghost">Back</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Stock Add Modal -->
   <div class="overlay" id="stockModal">
     <div class="modal">
