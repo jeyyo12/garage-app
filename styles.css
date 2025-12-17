@@ -320,6 +320,11 @@ button.close-btn {
   overflow: hidden;
   isolation: isolate;
   touch-action: manipulation;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .photo .border-anim {
@@ -343,11 +348,12 @@ button.close-btn {
 .photo img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 12px;
   position: relative;
   z-index: 1;
   transition: transform 0.2s ease;
+  padding: 4px;
 }
 
 .photo:active img { 
@@ -2601,5 +2607,3 @@ button.secondary:hover {
     font-size: 18px;
   }
 }
-
-```
