@@ -30,6 +30,7 @@ const PAID_CLIENTS_KEY = 'paidClientsV2';
 const FILTER_PREFS_KEY = 'stockFilterPrefs';
 const MONTHLY_HISTORY_KEY = 'monthlyHistoryV1';
 const DAILY_HISTORY_KEY = 'dailyHistoryV1';
+const LOYAL_CLIENTS_KEY = 'loyalClientsV1';
 
 let lastAction = null;
 let resetIntervalId = null;
@@ -1426,6 +1427,10 @@ function switchTab(tabName) {
   if (tabName === 'history') {
     updateHistoryDisplay();
   }
+
+  if (tabName === 'loyal') {
+    renderLoyalClientsList();
+  }
 }
 
 // ============================================================================
@@ -1503,6 +1508,11 @@ if (closeStockModal || closeStockModalBtn) {
 
 stockModal && stockModal.addEventListener('click', (e) => {
   if (e.target === stockModal) toggleStockModal(false);
+});
+
+const loyalClientModal = document.getElementById('loyalClientModal');
+loyalClientModal && loyalClientModal.addEventListener('click', (e) => {
+  if (e.target === loyalClientModal) closeLoyalClientModal();
 });
 
 if (addStockForm) {
@@ -1702,11 +1712,261 @@ window.deleteWork = deleteWork;
 // Make deleteSale global for sales log
 window.deleteSale = deleteSale;
 
+// ============================================================================
+// LOYAL CLIENTS MANAGEMENT
+// ============================================================================
+
+let loyalClients = [];
+let currentLoyalClientId = null;
+
+function loadLoyalClients() {
+  try {
+    loyalClients = JSON.parse(localStorage.getItem(LOYAL_CLIENTS_KEY) || '[]');
+  } catch {
+    loyalClients = [];
+  }
+}
+
+function saveLoyalClients() {
+  localStorage.setItem(LOYAL_CLIENTS_KEY, JSON.stringify(loyalClients));
+}
+
+function generateLoyalClientId() {
+  return 'loyal_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
+
+function generateVehicleId() {
+  return 'vehicle_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
+
+function addLoyalClient(number, name, phone, photo) {
+  const newClient = {
+    id: generateLoyalClientId(),
+    clientNumber: number.trim(),
+    name: name.trim(),
+    phone: phone.trim() || '',
+    photo: photo.trim() || '',
+    vehicles: [],
+    createdAt: new Date().toISOString()
+  };
+  loyalClients.push(newClient);
+  saveLoyalClients();
+  renderLoyalClientsList();
+}
+
+function addVehicleToLoyalClient(clientId, car, notes) {
+  const client = loyalClients.find(c => c.id === clientId);
+  if (!client) return;
+
+  const newVehicle = {
+    id: generateVehicleId(),
+    car: car.trim(),
+    notes: notes.trim() || '',
+    addedDate: new Date().toISOString()
+  };
+
+  client.vehicles.push(newVehicle);
+  saveLoyalClients();
+  renderLoyalClientDetails(clientId);
+  renderLoyalClientsList();
+}
+
+function deleteLoyalClient(clientId) {
+  if (!confirm('Are you sure you want to delete this loyal client?')) return;
+  loyalClients = loyalClients.filter(c => c.id !== clientId);
+  saveLoyalClients();
+  renderLoyalClientsList();
+}
+
+function deleteVehicle(clientId, vehicleId) {
+  if (!confirm('Are you sure you want to delete this vehicle?')) return;
+  const client = loyalClients.find(c => c.id === clientId);
+  if (!client) return;
+
+  client.vehicles = client.vehicles.filter(v => v.id !== vehicleId);
+  saveLoyalClients();
+  renderLoyalClientDetails(clientId);
+  renderLoyalClientsList();
+}
+
+function renderLoyalClientsList() {
+  const container = document.getElementById('loyalClientsGrid');
+  if (!container) return;
+
+  // Update stats
+  const totalClients = loyalClients.length;
+  const totalVehicles = loyalClients.reduce((sum, c) => sum + c.vehicles.length, 0);
+  
+  const countEl = document.getElementById('loyalClientsCount');
+  const vehiclesEl = document.getElementById('totalVehiclesCount');
+  
+  if (countEl) countEl.textContent = totalClients;
+  if (vehiclesEl) vehiclesEl.textContent = totalVehicles;
+
+  if (loyalClients.length === 0) {
+    container.innerHTML = '<p style="text-align:center;color:#999;padding:40px;">No loyal clients yet. Add your first one above!</p>';
+    return;
+  }
+
+  // Filter by search
+  const searchTerm = document.getElementById('loyalSearch')?.value.toLowerCase() || '';
+  const filtered = loyalClients.filter(c => 
+    c.name.toLowerCase().includes(searchTerm) ||
+    c.clientNumber.toLowerCase().includes(searchTerm) ||
+    c.phone.toLowerCase().includes(searchTerm)
+  );
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<p style="text-align:center;color:#999;padding:40px;">No matching clients found.</p>';
+    return;
+  }
+
+  container.innerHTML = filtered.map(client => {
+    const initials = client.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    const photoHtml = client.photo
+      ? `<img src="${client.photo}" alt="${client.name}" />`
+      : initials;
+
+    const vehiclesHtml = client.vehicles.length > 0
+      ? client.vehicles.map(v => `
+          <div class="loyal-vehicle-item">
+            <span class="vehicle-icon">🚐</span>
+            <span class="vehicle-name">${v.car}</span>
+          </div>
+        `).join('')
+      : '<p style="color:#999;font-size:13px;">No vehicles added yet</p>';
+
+    return `
+      <div class="loyal-client-card">
+        <div class="loyal-client-card-header">
+          <div class="loyal-client-photo">${photoHtml}</div>
+          <div class="loyal-client-main-info">
+            <h3>${client.name}</h3>
+            <div class="client-number">Client #${client.clientNumber}</div>
+            ${client.phone ? `<div class="client-phone">📞 ${client.phone}</div>` : ''}
+          </div>
+        </div>
+        <div class="loyal-vehicles">
+          <h4>Vehicles (${client.vehicles.length})</h4>
+          ${vehiclesHtml}
+        </div>
+        <div class="loyal-client-actions">
+          <button class="btn-view-loyal" onclick="openLoyalClientModal('${client.id}')">View Details</button>
+          <button class="btn-delete-loyal" onclick="deleteLoyalClient('${client.id}')">Delete</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function openLoyalClientModal(clientId) {
+  currentLoyalClientId = clientId;
+  const modal = document.getElementById('loyalClientModal');
+  if (modal) {
+    modal.classList.add('active');
+    renderLoyalClientDetails(clientId);
+  }
+}
+
+function closeLoyalClientModal() {
+  const modal = document.getElementById('loyalClientModal');
+  if (modal) modal.classList.remove('active');
+  currentLoyalClientId = null;
+}
+
+function renderLoyalClientDetails(clientId) {
+  const client = loyalClients.find(c => c.id === clientId);
+  if (!client) return;
+
+  const initials = client.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  const photoHtml = client.photo
+    ? `<img src="${client.photo}" alt="${client.name}" />`
+    : initials;
+
+  // Update header
+  const photoEl = document.getElementById('loyalClientPhotoLarge');
+  const nameEl = document.getElementById('loyalClientNameDisplay');
+  const numberEl = document.getElementById('loyalClientNumberDisplay');
+  const phoneEl = document.getElementById('loyalClientPhoneDisplay');
+
+  if (photoEl) photoEl.innerHTML = photoHtml;
+  if (nameEl) nameEl.textContent = client.name;
+  if (numberEl) numberEl.textContent = client.clientNumber;
+  if (phoneEl) phoneEl.textContent = client.phone || 'N/A';
+
+  // Render vehicles list
+  const vehiclesList = document.getElementById('loyalVehiclesList');
+  if (!vehiclesList) return;
+
+  if (client.vehicles.length === 0) {
+    vehiclesList.innerHTML = '<p style="text-align:center;color:#999;padding:20px;">No vehicles added yet. Add one above!</p>';
+    return;
+  }
+
+  vehiclesList.innerHTML = client.vehicles.map(vehicle => `
+    <div class="loyal-vehicle-item">
+      <div class="vehicle-info-block">
+        <div class="vehicle-name">🚐 ${vehicle.car}</div>
+        ${vehicle.notes ? `<div class="loyal-vehicle-notes">${vehicle.notes}</div>` : ''}
+        <div class="vehicle-date">Added: ${new Date(vehicle.addedDate).toLocaleDateString()}</div>
+      </div>
+      <button class="btn-delete-vehicle" onclick="deleteVehicle('${client.id}', '${vehicle.id}')">Delete</button>
+    </div>
+  `).join('');
+}
+
+// Event Listeners for Loyal Clients
+document.getElementById('loyalClientForm')?.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const number = document.getElementById('loyalClientNumber').value;
+  const name = document.getElementById('loyalClientName').value;
+  const phone = document.getElementById('loyalClientPhone').value;
+  const photo = document.getElementById('loyalClientPhoto').value;
+
+  if (!number || !name) {
+    alert('Please fill in Client Number and Name');
+    return;
+  }
+
+  addLoyalClient(number, name, phone, photo);
+  e.target.reset();
+});
+
+document.getElementById('addVehicleForm')?.addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (!currentLoyalClientId) return;
+
+  const car = document.getElementById('vehicleCar').value;
+  const notes = document.getElementById('vehicleNotes').value;
+
+  if (!car) {
+    alert('Please enter vehicle information');
+    return;
+  }
+
+  addVehicleToLoyalClient(currentLoyalClientId, car, notes);
+  e.target.reset();
+});
+
+document.getElementById('closeLoyalClientModal')?.addEventListener('click', closeLoyalClientModal);
+
+document.getElementById('loyalSearch')?.addEventListener('input', debounce(() => {
+  renderLoyalClientsList();
+}, 300));
+
+// Make functions global
+window.openLoyalClientModal = openLoyalClientModal;
+window.closeLoyalClientModal = closeLoyalClientModal;
+window.deleteLoyalClient = deleteLoyalClient;
+window.deleteVehicle = deleteVehicle;
+
 // Initial render
+loadLoyalClients();
 render();
 renderClientsList();
 updateStockSummary();
 renderTodaysSalesLog();
+renderLoyalClientsList();
 
 // ============================================================================
 // UTILITIES

@@ -23,6 +23,10 @@
         <span class="icon">👥</span>
         <span>Clients</span>
       </button>
+      <button id="tab-loyal" class="nav-tab" data-tab="loyal" role="tab" aria-controls="loyal-tab" aria-selected="false">
+        <span class="icon">⭐</span>
+        <span>Loyal Clients</span>
+      </button>
       <button id="tab-analytics" class="nav-tab" data-tab="analytics" role="tab" aria-controls="analytics-tab" aria-selected="false">
         <span class="icon">📊</span>
         <span>Analytics</span>
@@ -138,6 +142,45 @@
 
         <!-- Clients List -->
         <div class="clients-list" id="clientsList"></div>
+      </div>
+    </section>
+
+    <!-- Tab: Loyal Clients -->
+    <section id="loyal-tab" class="tab-content" role="tabpanel" aria-labelledby="tab-loyal" aria-hidden="true">
+      <div class="loyal-clients-container">
+        <h2>⭐ Loyal Clients Management</h2>
+
+        <!-- Stats Header -->
+        <div class="loyal-stats">
+          <div class="stat-item">
+            <div class="stat-value" id="loyalClientsCount">0</div>
+            <div class="stat-label">Loyal Clients</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="totalVehiclesCount">0</div>
+            <div class="stat-label">Total Vehicles</div>
+          </div>
+        </div>
+
+        <!-- Add Loyal Client Form -->
+        <div class="add-section">
+          <h3>Add New Loyal Client</h3>
+          <form id="loyalClientForm" class="add-loyal-client-form">
+            <input id="loyalClientNumber" type="text" placeholder="Client #" required />
+            <input id="loyalClientName" type="text" placeholder="Client name" required />
+            <input id="loyalClientPhone" type="tel" placeholder="Phone number" />
+            <input id="loyalClientPhoto" type="url" placeholder="Photo URL (optional)" />
+            <button type="submit" class="primary">Add Loyal Client</button>
+          </form>
+        </div>
+
+        <!-- Search Section -->
+        <div class="loyal-search-section">
+          <input id="loyalSearch" type="text" placeholder="🔍 Search loyal clients..." />
+        </div>
+
+        <!-- Loyal Clients Grid -->
+        <div class="loyal-clients-grid" id="loyalClientsGrid"></div>
       </div>
     </section>
 
@@ -413,6 +456,41 @@
         <button type="button" id="printInvoiceBtn" class="primary">🖨️ Print Invoice</button>
         <button type="button" id="editInvoiceBtn" class="secondary">✏️ Edit Details</button>
         <button type="button" id="closeInvoiceViewerBtn" class="ghost">Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loyal Client Details Modal -->
+  <div class="overlay" id="loyalClientModal">
+    <div class="modal large-modal">
+      <button class="close-modal" id="closeLoyalClientModal">✕</button>
+      <h2>👤 Loyal Client Details</h2>
+
+      <div class="loyal-client-details">
+        <div class="loyal-client-header">
+          <div class="loyal-client-photo-large" id="loyalClientPhotoLarge"></div>
+          <div class="loyal-client-info">
+            <h3 id="loyalClientNameDisplay"></h3>
+            <p><strong>Client #:</strong> <span id="loyalClientNumberDisplay"></span></p>
+            <p><strong>Phone:</strong> <span id="loyalClientPhoneDisplay"></span></p>
+          </div>
+        </div>
+
+        <!-- Add Vehicle Section -->
+        <div class="add-vehicle-section">
+          <h3>Add Vehicle</h3>
+          <form id="addVehicleForm" class="add-vehicle-form">
+            <input id="vehicleCar" type="text" placeholder="Car model/plate" required />
+            <input id="vehicleNotes" type="text" placeholder="Notes (optional)" />
+            <button type="submit" class="primary">Add Vehicle</button>
+          </form>
+        </div>
+
+        <!-- Vehicles List -->
+        <div class="vehicles-section">
+          <h3>Vehicles (Vans)</h3>
+          <div id="loyalVehiclesList" class="loyal-vehicles-list"></div>
+        </div>
       </div>
     </div>
   </div>
