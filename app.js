@@ -440,25 +440,27 @@ function render() {
     img.decoding = 'async';
     photo.appendChild(img);
 
-    // Count badge removed per request; showing only overlay info
-
-    // Image info overlay: price, used today, availability
-    const overlay = document.createElement('div');
-    overlay.className = 'info-overlay';
+    // Product info below image for clear visibility
+    const infoBelow = document.createElement('div');
+    infoBelow.className = 'product-info-below';
+    
     const priceEl = document.createElement('span');
     priceEl.className = 'price';
     priceEl.id = `price-${item.id}`;
     priceEl.textContent = formatGBP(item.price);
+    
     const usedEl = document.createElement('span');
     usedEl.className = 'used';
     usedEl.id = `usedToday-${item.id}`;
     usedEl.textContent = `${countLast12h(item.id)} today`;
+    
     const availEl = document.createElement('span');
     availEl.className = `availability ${item.stock > 0 ? 'available' : 'out'}`;
     availEl.id = `availability-${item.id}`;
     availEl.textContent = item.stock > 0 ? 'Available' : 'Out of stock';
-    overlay.append(priceEl, usedEl, availEl);
-    photo.appendChild(overlay);
+    
+    infoBelow.append(priceEl, usedEl, availEl);
+    photo.appendChild(infoBelow);
 
     const info = document.createElement('div');
     info.className = 'info';
