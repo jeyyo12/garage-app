@@ -2566,26 +2566,26 @@ button.secondary:hover {
 }
 
 .loyal-stats .stat-item {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ff6b35 0%, #d85d3e 100%);
   padding: 24px;
   border-radius: 12px;
   text-align: center;
   color: white;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+  box-shadow: 0 8px 20px rgba(216, 93, 62, 0.25);
 }
 
 .loyal-stats .stat-value {
-  font-size: 36px;
-  font-weight: 700;
+  font-size: 40px;
+  font-weight: 800;
   margin-bottom: 8px;
 }
 
 .loyal-stats .stat-label {
   font-size: 14px;
   opacity: 0.95;
-  font-weight: 500;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
 }
 
 .add-loyal-client-form {
@@ -2604,8 +2604,8 @@ button.secondary:hover {
 }
 
 .add-loyal-client-form input:focus {
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #ff6b35;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15);
 }
 
 .loyal-search-section {
@@ -2622,8 +2622,8 @@ button.secondary:hover {
 }
 
 .loyal-search-section input:focus {
-  border-color: #667eea;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  border-color: #ff6b35;
+  box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.15);
 }
 
 .loyal-clients-grid {
@@ -2643,8 +2643,8 @@ button.secondary:hover {
 }
 
 .loyal-client-card:hover {
-  border-color: #667eea;
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+  border-color: #ff6b35;
+  box-shadow: 0 8px 24px rgba(255, 107, 53, 0.2);
   transform: translateY(-4px);
 }
 
@@ -2662,15 +2662,15 @@ button.secondary:hover {
   height: 70px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #667eea;
+  border: 3px solid #ff6b35;
   flex-shrink: 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ff6b35 0%, #d85d3e 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-size: 28px;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .loyal-client-photo img {
@@ -2684,12 +2684,13 @@ button.secondary:hover {
   font-size: 20px;
   margin: 0 0 4px 0;
   color: #1a1a1a;
+  font-weight: 700;
 }
 
 .loyal-client-main-info .client-number {
   font-size: 14px;
-  color: #667eea;
-  font-weight: 600;
+  color: #ff6b35;
+  font-weight: 700;
 }
 
 .loyal-client-main-info .client-phone {
@@ -2707,12 +2708,12 @@ button.secondary:hover {
   color: #666;
   margin-bottom: 8px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 600;
+  letter-spacing: 1px;
+  font-weight: 700;
 }
 
 .loyal-vehicle-item {
-  background: #f8f9ff;
+  background: #fff5f0;
   padding: 10px 14px;
   border-radius: 8px;
   margin-bottom: 8px;
@@ -2720,7 +2721,7 @@ button.secondary:hover {
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  border-left: 3px solid #667eea;
+  border-left: 4px solid #ff6b35;
 }
 
 .loyal-vehicle-item .vehicle-icon {
@@ -2729,7 +2730,7 @@ button.secondary:hover {
 
 .loyal-vehicle-item .vehicle-name {
   flex: 1;
-  font-weight: 600;
+  font-weight: 700;
   color: #1a1a1a;
 }
 
@@ -2763,12 +2764,12 @@ button.secondary:hover {
 }
 
 .btn-view-loyal {
-  background: #667eea;
+  background: #ff6b35;
   color: white;
 }
 
 .btn-view-loyal:hover {
-  background: #5568d3;
+  background: #d85d3e;
   transform: translateY(-2px);
 }
 
@@ -2800,16 +2801,16 @@ button.secondary:hover {
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  border: 4px solid #667eea;
+  border: 4px solid #ff6b35;
   overflow: hidden;
   flex-shrink: 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ff6b35 0%, #d85d3e 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-size: 48px;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .loyal-client-photo-large img {
@@ -2822,6 +2823,7 @@ button.secondary:hover {
   font-size: 28px;
   margin: 0 0 12px 0;
   color: #1a1a1a;
+  font-weight: 700;
 }
 
 .loyal-client-info p {
@@ -2831,16 +2833,18 @@ button.secondary:hover {
 }
 
 .add-vehicle-section {
-  background: #f8f9ff;
+  background: #fff5f0;
   padding: 24px;
   border-radius: 12px;
   margin-bottom: 32px;
+  border: 2px solid #ffe8dc;
 }
 
 .add-vehicle-section h3 {
   font-size: 18px;
   margin: 0 0 16px 0;
   color: #1a1a1a;
+  font-weight: 700;
 }
 
 .add-vehicle-form {
@@ -2864,6 +2868,7 @@ button.secondary:hover {
   font-size: 20px;
   margin: 0 0 16px 0;
   color: #1a1a1a;
+  font-weight: 700;
 }
 
 .loyal-vehicles-list {
@@ -2887,7 +2892,7 @@ button.secondary:hover {
 
 .vehicle-info-block .vehicle-name {
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 700;
   color: #1a1a1a;
   margin-bottom: 4px;
 }
@@ -2963,10 +2968,11 @@ button.secondary:hover {
 
 .add-work-section,
 .payment-section {
-  background: #f8f9ff;
+  background: #fff5f0;
   padding: 24px;
   border-radius: 12px;
   margin-bottom: 24px;
+  border: 2px solid #ffe8dc;
 }
 
 .add-work-section h3,
@@ -2974,6 +2980,7 @@ button.secondary:hover {
   font-size: 18px;
   margin: 0 0 16px 0;
   color: #1a1a1a;
+  font-weight: 700;
 }
 
 .add-work-form {
@@ -3014,6 +3021,7 @@ button.secondary:hover {
   font-size: 18px;
   margin: 0 0 16px 0;
   color: #1a1a1a;
+  font-weight: 700;
 }
 
 .vehicle-works-list {
@@ -3034,7 +3042,7 @@ button.secondary:hover {
 }
 
 .vehicle-work-item .work-desc {
-  font-weight: 600;
+  font-weight: 700;
   color: #1a1a1a;
 }
 
@@ -3044,8 +3052,8 @@ button.secondary:hover {
 }
 
 .vehicle-work-item .work-price {
-  font-weight: 600;
-  color: #667eea;
+  font-weight: 700;
+  color: #ff6b35;
 }
 
 .vehicle-work-item .work-date {
@@ -3098,10 +3106,11 @@ button.secondary:hover {
 }
 
 .vehicle-summary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ff6b35 0%, #d85d3e 100%);
   padding: 24px;
   border-radius: 12px;
   color: white;
+  box-shadow: 0 6px 20px rgba(216, 93, 62, 0.3);
 }
 
 .vehicle-summary .summary-row {
@@ -3109,6 +3118,7 @@ button.secondary:hover {
   justify-content: space-between;
   padding: 12px 0;
   font-size: 16px;
+  font-weight: 600;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
@@ -3117,8 +3127,8 @@ button.secondary:hover {
 }
 
 .vehicle-summary .summary-row.total {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 800;
   margin-top: 8px;
   padding-top: 16px;
   border-top: 2px solid rgba(255, 255, 255, 0.3);

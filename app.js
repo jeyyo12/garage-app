@@ -2080,16 +2080,18 @@ function renderVehicleWorkDetails(clientId, vehicleId) {
 // Event Listeners for Loyal Clients
 document.getElementById('loyalClientForm')?.addEventListener('submit', (e) => {
   e.preventDefault();
-  const number = document.getElementById('loyalClientNumber').value;
   const name = document.getElementById('loyalClientName').value;
   const phone = document.getElementById('loyalClientPhone').value;
   const photo = document.getElementById('loyalClientPhoto').value;
 
-  if (!number || !name) {
-    alert('Please fill in Client Number and Name');
+  if (!name || !phone) {
+    alert('Please fill in Client Name and Phone Number');
     return;
   }
 
+  // Auto-generate client number
+  const number = 'LC' + String(loyalClients.length + 1).padStart(4, '0');
+  
   addLoyalClient(number, name, phone, photo);
   e.target.reset();
 });
