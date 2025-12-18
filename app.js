@@ -3,6 +3,7 @@
 // ============================================================================
 
 const PIN_KEY = 'garage_pin_code';
+const DEFAULT_PIN = '1209';
 
 // Check PIN on page load
 document.addEventListener('DOMContentLoaded', () => {
@@ -17,19 +18,18 @@ function initializePINSystem() {
   const pinTitle = document.getElementById('pinLockTitle');
   const pinMessage = document.getElementById('pinLockMessage');
   
-  const savedPIN = localStorage.getItem(PIN_KEY);
+  let savedPIN = localStorage.getItem(PIN_KEY);
   
-  if (savedPIN) {
-    // PIN exists - ask for unlock
-    pinTitle.textContent = 'Enter Your PIN';
-    pinMessage.textContent = 'Enter your 4-digit PIN to access your data';
-    pinResetBtn.style.display = 'block';
-  } else {
-    // First time - set PIN
-    pinTitle.textContent = 'Set Your PIN';
-    pinMessage.textContent = 'Create a 4-digit PIN to protect your data';
-    pinResetBtn.style.display = 'none';
+  // Set default PIN if none exists
+  if (!savedPIN) {
+    localStorage.setItem(PIN_KEY, DEFAULT_PIN);
+    savedPIN = DEFAULT_PIN;
   }
+  
+  // PIN exists - ask for unlock
+  pinTitle.textContent = 'Enter Your PIN';
+  pinMessage.textContent = 'Enter PIN: 1209';
+  pinResetBtn.style.display = 'block';
   
   // Submit PIN
   pinSubmitBtn.addEventListener('click', handlePINSubmit);
