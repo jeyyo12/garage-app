@@ -10,6 +10,152 @@
   --shadow: 0 18px 60px rgba(0, 0, 0, 0.08);
 }
 
+/* PIN Lock Screen */
+.pin-lock-screen {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #ff9550 0%, #ff6b35 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.pin-lock-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.pin-lock-container {
+  background: white;
+  border-radius: 24px;
+  padding: 40px 32px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.pin-lock-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.pin-lock-container h1 {
+  margin: 0 0 12px;
+  font-size: 28px;
+  color: var(--text);
+}
+
+.pin-lock-container p {
+  margin: 0 0 28px;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.pin-input-container {
+  margin-bottom: 20px;
+}
+
+.pin-input {
+  width: 100%;
+  padding: 18px 24px;
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 12px;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  outline: none;
+  transition: all 0.2s ease;
+  font-family: 'Space Grotesk', monospace;
+}
+
+.pin-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(255, 149, 80, 0.1);
+}
+
+.pin-input.error {
+  border-color: var(--danger);
+  animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}
+
+.pin-submit-btn {
+  width: 100%;
+  padding: 16px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.pin-submit-btn:hover {
+  background: var(--accent-2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 149, 80, 0.4);
+}
+
+.pin-submit-btn:active {
+  transform: translateY(0);
+}
+
+.pin-reset-btn {
+  margin-top: 16px;
+  padding: 10px;
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.pin-reset-btn:hover {
+  background: var(--danger);
+  color: white;
+}
+
 /* Toast Notifications */
 .toast-container {
   position: fixed;

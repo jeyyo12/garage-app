@@ -1,4 +1,130 @@
 // ============================================================================
+// PIN PROTECTION SYSTEM
+// ============================================================================
+
+const PIN_KEY = 'garage_pin_code';
+
+// Check PIN on page load
+document.addEventListener('DOMContentLoaded', () => {
+  initializePINSystem();
+});
+
+function initializePINSystem() {
+  const pinScreen = document.getElementById('pinLockScreen');
+  const pinInput = document.getElementById('pinInput');
+  const pinSubmitBtn = document.getElementById('pinSubmitBtn');
+  const pinResetBtn = document.getElementById('pinResetBtn');
+  const pinTitle = document.getElementById('pinLockTitle');
+  const pinMessage = document.getElementById('pinLockMessage');
+  
+  const savedPIN = localStorage.getItem(PIN_KEY);
+  
+  if (savedPIN) {
+    // PIN exists - ask for unlock
+    pinTitle.textContent = 'Enter Your PIN';
+    pinMessage.textContent = 'Enter your 4-digit PIN to access your data';
+    pinResetBtn.style.display = 'block';
+  } else {
+    // First time - set PIN
+    pinTitle.textContent = 'Set Your PIN';
+    pinMessage.textContent = 'Create a 4-digit PIN to protect your data';
+    pinResetBtn.style.display = 'none';
+  }
+  
+  // Submit PIN
+  pinSubmitBtn.addEventListener('click', handlePINSubmit);
+  pinInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') handlePINSubmit();
+  });
+  
+  // Reset PIN (delete all data)
+  pinResetBtn.addEventListener('click', handlePINReset);
+  
+  // Focus input
+  pinInput.focus();
+}
+
+function handlePINSubmit() {
+  const pinInput = document.getElementById('pinInput');
+  const pinScreen = document.getElementById('pinLockScreen');
+  const enteredPIN = pinInput.value.trim();
+  
+  if (enteredPIN.length !== 4 || !/^\d{4}$/.test(enteredPIN)) {
+    showPINError('PIN must be exactly 4 digits');
+    return;
+  }
+  
+  const savedPIN = localStorage.getItem(PIN_KEY);
+  
+  if (!savedPIN) {
+    // Set new PIN
+    localStorage.setItem(PIN_KEY, enteredPIN);
+    unlockApp();
+  } else {
+    // Verify PIN
+    if (enteredPIN === savedPIN) {
+      unlockApp();
+    } else {
+      showPINError('Incorrect PIN. Try again.');
+    }
+  }
+}
+
+function showPINError(message) {
+  const pinInput = document.getElementById('pinInput');
+  const pinMessage = document.getElementById('pinLockMessage');
+  
+  pinInput.classList.add('error');
+  pinMessage.textContent = message;
+  pinMessage.style.color = 'var(--danger)';
+  pinInput.value = '';
+  
+  setTimeout(() => {
+    pinInput.classList.remove('error');
+    pinMessage.style.color = '';
+    const savedPIN = localStorage.getItem(PIN_KEY);
+    if (savedPIN) {
+      pinMessage.textContent = 'Enter your 4-digit PIN to access your data';
+    } else {
+      pinMessage.textContent = 'Create a 4-digit PIN to protect your data';
+    }
+  }, 2000);
+}
+
+function unlockApp() {
+  const pinScreen = document.getElementById('pinLockScreen');
+  pinScreen.classList.add('hidden');
+  
+  // Initialize app after unlock
+  setTimeout(() => {
+    initializeApp();
+  }, 300);
+}
+
+function handlePINReset() {
+  const confirmed = confirm(
+    '⚠️ WARNING: This will DELETE ALL your data!\n\n' +
+    'This includes:\n' +
+    '• All stock items\n' +
+    '• All clients\n' +
+    '• All sales history\n' +
+    '• Your PIN code\n\n' +
+    'Are you absolutely sure?'
+  );
+  
+  if (!confirmed) return;
+  
+  const doubleConfirm = confirm('Last chance! This cannot be undone. Delete everything?');
+  
+  if (doubleConfirm) {
+    // Clear ALL localStorage
+    localStorage.clear();
+    alert('✅ All data deleted. Page will reload.');
+    location.reload();
+  }
+}
+
+// ============================================================================
 // DATA & STATE MANAGEMENT
 // ============================================================================
 
@@ -2717,13 +2843,15 @@ window.deleteVehicleWork = deleteVehicleWork;
 window.undoLastDelete = undoLastDelete;
 window.openVehicleInvoice = openVehicleInvoice;
 
-// Initial render
-loadLoyalClients();
-render();
-renderClientsList();
-updateStockSummary();
-renderTodaysSalesLog();
-renderLoyalClientsList();
+// Initialize app after PIN unlock
+function initializeApp() {
+  loadLoyalClients();
+  render();
+  renderClientsList();
+  updateStockSummary();
+  renderTodaysSalesLog();
+  renderLoyalClientsList();
+}
 
 // ============================================================================
 // UTILITIES
