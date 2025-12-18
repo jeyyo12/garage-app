@@ -378,6 +378,53 @@
     font-size: 13px;
   }
 
+  /* Invoice Viewer - Same size as modals on mobile */
+  .invoice-viewer-container {
+    width: 92%;
+    max-width: 92%;
+    max-height: 85vh;
+    border-radius: 16px;
+    margin: 8px;
+  }
+
+  .invoice-viewer-modal {
+    max-width: 92%;
+    max-height: 85vh;
+    border-radius: 16px;
+    padding: 14px;
+    margin: 8px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .invoice-viewer-header {
+    padding: 12px;
+  }
+
+  .invoice-viewer-header h2,
+  .invoice-viewer-header h1 {
+    font-size: 17px;
+  }
+
+  .invoice-viewer-content {
+    padding: 12px;
+    font-size: 13px;
+  }
+
+  .invoice-viewer-section h3 {
+    font-size: 15px;
+  }
+
+  .invoice-viewer-footer {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .invoice-viewer-footer button {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
   /* Toast notifications */
   .toast-container {
     right: 10px;
