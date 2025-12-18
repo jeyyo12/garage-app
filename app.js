@@ -1,13 +1,17 @@
 // ============================================================================
-// PIN PROTECTION SYSTEM
+// PIN PROTECTION SYSTEM - DISABLED (Auto-unlock)
 // ============================================================================
 
 const PIN_KEY = 'garage_pin_code';
 const DEFAULT_PIN = '1209';
 
-// Check PIN on page load
+// Auto-unlock without PIN screen
 document.addEventListener('DOMContentLoaded', () => {
-  initializePINSystem();
+  const pinScreen = document.getElementById('pinLockScreen');
+  if (pinScreen) {
+    pinScreen.style.display = 'none';
+  }
+  initializeApp();
 });
 
 function initializePINSystem() {
