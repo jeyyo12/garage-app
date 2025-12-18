@@ -41,6 +41,91 @@ const MONTHLY_HISTORY_KEY = 'monthlyHistoryV1';
 const DAILY_HISTORY_KEY = 'dailyHistoryV1';
 const LOYAL_CLIENTS_KEY = 'loyalClientsV1';
 
+// ============================================================================
+// EXPORT / IMPORT SYSTEM
+// ============================================================================
+
+function getAllData() {
+  return {
+    timestamp: new Date().toISOString(),
+    version: '1.0',
+    items: JSON.parse(localStorage.getItem(ITEMS_KEY) || JSON.stringify(items)),
+    clients: JSON.parse(localStorage.getItem(CLIENTS_KEY) || '[]'),
+    paidClients: JSON.parse(localStorage.getItem(PAID_CLIENTS_KEY) || '[]'),
+    loyalClients: JSON.parse(localStorage.getItem(LOYAL_CLIENTS_KEY) || '[]'),
+    logs: JSON.parse(localStorage.getItem(LOG_KEY) || '[]'),
+    dailyHistory: JSON.parse(localStorage.getItem(DAILY_HISTORY_KEY) || '{}'),
+    monthlyHistory: JSON.parse(localStorage.getItem(MONTHLY_HISTORY_KEY) || '{}'),
+  };
+}
+
+function exportData() {
+  const data = getAllData();
+  const jsonString = JSON.stringify(data, null, 2);
+  const blob = new Blob([jsonString], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `garage-backup-${new Date().toISOString().split('T')[0]}.json`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+  showToast('✅ Data exported successfully!', 'success');
+}
+
+function importData() {
+  document.getElementById('importFile').click();
+}
+
+function handleFileImport(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      
+      if (!data.version) {
+        alert('❌ Invalid backup file format');
+        return;
+      }
+
+      const confirmed = confirm(
+        '⚠️ This will REPLACE all current data with imported data.\n\n' +
+        'Current data:\n' +
+        `• Items: ${(JSON.parse(localStorage.getItem(ITEMS_KEY) || '[]')).length}\n` +
+        `• Clients: ${(JSON.parse(localStorage.getItem(CLIENTS_KEY) || '[]')).length}\n\n` +
+        'Imported data:\n' +
+        `• Items: ${data.items?.length || 0}\n` +
+        `• Clients: ${data.clients?.length || 0}\n\n` +
+        'Continue?'
+      );
+
+      if (!confirmed) return;
+
+      // Import all data
+      if (data.items) localStorage.setItem(ITEMS_KEY, JSON.stringify(data.items));
+      if (data.clients) localStorage.setItem(CLIENTS_KEY, JSON.stringify(data.clients));
+      if (data.paidClients) localStorage.setItem(PAID_CLIENTS_KEY, JSON.stringify(data.paidClients));
+      if (data.loyalClients) localStorage.setItem(LOYAL_CLIENTS_KEY, JSON.stringify(data.loyalClients));
+      if (data.logs) localStorage.setItem(LOG_KEY, JSON.stringify(data.logs));
+      if (data.dailyHistory) localStorage.setItem(DAILY_HISTORY_KEY, JSON.stringify(data.dailyHistory));
+      if (data.monthlyHistory) localStorage.setItem(MONTHLY_HISTORY_KEY, JSON.stringify(data.monthlyHistory));
+
+      showToast('✅ Data imported successfully! Reloading...', 'success');
+      setTimeout(() => {
+        location.reload();
+      }, 1000);
+    } catch (err) {
+      alert('❌ Error reading file: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
 let lastAction = null;
 let resetIntervalId = null;
 let currentClientId = null;
@@ -2672,6 +2757,11 @@ document.getElementById('loyalSortSelect')?.addEventListener('change', () => {
 document.getElementById('loyalFilterSelect')?.addEventListener('change', () => {
   renderLoyalClientsList();
 });
+
+// Export/Import buttons
+document.getElementById('exportBtn')?.addEventListener('click', exportData);
+document.getElementById('importBtn')?.addEventListener('click', importData);
+document.getElementById('importFile')?.addEventListener('change', handleFileImport);
 
 // Vehicle Work Form
 document.getElementById('addVehicleWorkForm')?.addEventListener('submit', (e) => {

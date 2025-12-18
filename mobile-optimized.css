@@ -314,6 +314,7 @@
 
   /* Buttons */
   button.primary,
+  button.secondary,
   button.ghost,
   button.danger {
     padding: 8px 12px;
