@@ -28,7 +28,7 @@ function initializePINSystem() {
   
   // PIN exists - ask for unlock
   pinTitle.textContent = 'Enter Your PIN';
-  pinMessage.textContent = 'Enter PIN: 1209';
+  pinMessage.textContent = 'Enter your 4-digit PIN to access your data';
   pinResetBtn.style.display = 'block';
   
   // Submit PIN
