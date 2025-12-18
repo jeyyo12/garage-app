@@ -277,16 +277,43 @@
     border-radius: 8px;
   }
 
-  /* Modals */
+  /* Modals - Optimized for small screens */
   .modal {
-    max-width: 95%;
-    padding: 16px;
-    margin: 10px;
-    border-radius: 14px;
+    max-width: 92%;
+    max-height: 85vh;
+    padding: 14px;
+    margin: 8px;
+    border-radius: 16px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
   }
 
   .large-modal {
-    max-width: 95%;
+    max-width: 92%;
+    max-height: 88vh;
+  }
+
+  .modal-header {
+    margin-bottom: 14px;
+  }
+
+  .modal-header h2 {
+    font-size: 17px;
+  }
+
+  .modal-body {
+    font-size: 13px;
+  }
+
+  .modal-footer {
+    margin-top: 14px;
+    gap: 8px;
+  }
+
+  .modal-footer button {
+    padding: 10px 12px;
+    font-size: 13px;
   }
 
   /* Toast notifications */
@@ -477,10 +504,13 @@
   }
 
   .modal {
-    max-width: 95%;
-    padding: 16px;
-    margin: 10px;
+    max-width: 90%;
+    max-height: 85vh;
+    padding: 14px;
+    margin: 8px;
     border-radius: 14px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 }
 
@@ -686,4 +716,15 @@
   .overlay {
     min-height: 100dvh;
   }
+}
+
+/* Prevent page scroll when modal is open */
+.overlay.active {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.overlay.active .modal {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }

@@ -1282,6 +1282,7 @@ function openInvoiceViewer(clientId) {
   const invoiceViewer = document.getElementById('invoiceViewer');
   if (invoiceViewer) {
     invoiceViewer.classList.add('active');
+    preventBodyScroll(true);
   }
 }
 
@@ -1369,6 +1370,7 @@ function openClientModal(clientId) {
   const clientModal = document.getElementById('clientModal');
   if (clientModal) {
     clientModal.classList.add('active');
+    preventBodyScroll(true);
   }
 }
 
@@ -1595,11 +1597,30 @@ function updateAnalytics() {
 
 function toggleStockModal(show) {
   stockModal.classList.toggle('active', show);
-  if (show) syncPriceInput();
+  if (show) {
+    syncPriceInput();
+    preventBodyScroll(true);
+  } else {
+    preventBodyScroll(false);
+  }
 }
 
 function toggleClientModal(show) {
   clientModal.classList.toggle('active', show);
+  preventBodyScroll(show);
+}
+
+// Prevent body scroll when modal is open (mobile fix)
+function preventBodyScroll(prevent) {
+  if (prevent) {
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+  } else {
+    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.width = '';
+  }
 }
 
 // ============================================================================
@@ -1791,6 +1812,7 @@ const printInvoiceBtn = document.getElementById('printInvoiceBtn');
 function closeInvoiceViewerModal() {
   if (invoiceViewer) {
     invoiceViewer.classList.remove('active');
+    preventBodyScroll(false);
   }
 }
 
@@ -1834,6 +1856,7 @@ const printVehicleInvoiceBtn = document.getElementById('printVehicleInvoiceBtn')
 function closeVehicleInvoiceViewerModal() {
   if (vehicleInvoiceViewer) {
     vehicleInvoiceViewer.classList.remove('active');
+    preventBodyScroll(false);
   }
 }
 
@@ -2288,6 +2311,7 @@ function openLoyalClientModal(clientId) {
   if (modal) {
     modal.classList.add('active');
     renderLoyalClientDetails(clientId);
+    preventBodyScroll(true);
   }
 }
 
@@ -2295,6 +2319,7 @@ function closeLoyalClientModal() {
   const modal = document.getElementById('loyalClientModal');
   if (modal) modal.classList.remove('active');
   currentLoyalClientId = null;
+  preventBodyScroll(false);
 }
 
 function renderLoyalClientDetails(clientId) {
@@ -2362,6 +2387,7 @@ function openVehicleWorkModal(clientId, vehicleId) {
   if (modal) {
     modal.classList.add('active');
     renderVehicleWorkDetails(clientId, vehicleId);
+    preventBodyScroll(true);
   }
 }
 
@@ -2369,6 +2395,7 @@ function closeVehicleWorkModal() {
   const modal = document.getElementById('vehicleWorkModal');
   if (modal) modal.classList.remove('active');
   currentVehicleId = null;
+  preventBodyScroll(false);
   // Refresh the loyal client details
   if (currentLoyalClientId) {
     renderLoyalClientDetails(currentLoyalClientId);
@@ -2451,6 +2478,7 @@ function openVehicleInvoice(clientId, vehicleId) {
   const invoiceViewer = document.getElementById('vehicleInvoiceViewer');
   if (invoiceViewer) {
     invoiceViewer.classList.add('active');
+    preventBodyScroll(true);
   }
 }
 
