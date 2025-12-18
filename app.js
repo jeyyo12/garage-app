@@ -2728,6 +2728,7 @@ window.openVehicleInvoice = openVehicleInvoice;
 
 // Initialize app after PIN unlock
 function initializeApp() {
+  loadFilterPrefs();
   loadLoyalClients();
   render();
   renderClientsList();
